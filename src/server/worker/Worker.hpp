@@ -12,6 +12,7 @@
 #include <thread>
 #include "Task.hpp"
 #include "SharedQueue.hpp"
+#include "base/network/LibfabricConnection.hpp"
 
 /****************************************************/
 namespace IOC
@@ -27,7 +28,7 @@ typedef SharedQueue<Task> WorkerTaskQueue;
 class Worker
 {
 	public:
-		Worker(WorkerTaskQueue * inQueue, WorkerTaskQueue * outQueue);
+		Worker(WorkerTaskQueue * inQueue, WorkerTaskQueue * outQueue, LibfabricConnection * connection = NULL);
 		~Worker(void);
 	private:
 		/** Handler to thread thread running the worker. **/

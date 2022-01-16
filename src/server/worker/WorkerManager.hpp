@@ -20,7 +20,7 @@ namespace IOC
 class WorkerManager
 {
 	public:
-		WorkerManager(int workers);
+		WorkerManager(int workers, LibfabricConnection * connection = NULL);
 		~WorkerManager(void);
 		void pushTask(Task * task);
 		Task * pollFinishedTask(bool waitOne);

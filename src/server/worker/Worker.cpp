@@ -18,15 +18,17 @@ using namespace IOC;
  * Constructor of the worker.
  * @param inQueue Define the queue from which to poll the incoming tasks.
  * @param outQueue Push the task in the given queue when they are finished.
+ * @param connection Pointer to the libfabric connection to signal it to wake-up when a task has
+ * been finished.
 **/
-Worker::Worker(WorkerTaskQueue * inQueue, WorkerTaskQueue * outQueue)
+Worker::Worker(WorkerTaskQueue * inQueue, WorkerTaskQueue * outQueue, LibfabricConnection * connection)
 {
 	//check
 	assert(inQueue != NULL);
 	assert(outQueue != NULL);
 
 	//spaw the thread
-	this->thread = std::thread([this, inQueue, outQueue](){
+	this->thread = std::thread([this, connection, inQueue, outQueue](){
 		//debug
 		IOC_DEBUG_ARG("worker", "Worker thread %1 started").arg(this).end();
 
@@ -44,6 +46,10 @@ Worker::Worker(WorkerTaskQueue * inQueue, WorkerTaskQueue * outQueue)
 
 			//push it to the out queue
 			outQueue->push(task);
+
+			//wake up the connection if we have one
+			if (connection != NULL)
+				connection->signalPassivePolling();
 		}
 	});
 }

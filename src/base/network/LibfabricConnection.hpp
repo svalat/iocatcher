@@ -137,6 +137,7 @@ class LibfabricConnection
 		void sendResponse(LibfabricMessageType msgType, uint64_t lfClientId, int32_t status, bool unblock = false);
 		void sendResponse(LibfabricMessageType msgType, uint64_t lfClientId, int32_t status, const char * data, size_t size, bool unblock = false);
 		void sendResponse(LibfabricMessageType msgType, uint64_t lfClientId, int32_t status, const LibfabricBuffer * buffers, size_t cntBuffers, bool unblock = false);
+		void signalPassivePolling(void);
 	private:
 		void sendRawMessage(void * buffer, size_t size, int destinationEpId, LibfabricPostAction * postAction);
 		void sendRawMessageNoPollWakeup(void * buffer, size_t size, int destinationEpId);

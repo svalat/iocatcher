@@ -16,8 +16,10 @@ using namespace IOC;
 /****************************************************/
 /**
  * Constructor of the task manager. It start the worker thread.
+ * @param worker The number of worker to spawn.
+ * @param connection The connection to signal if we use passive polling.
 **/
-WorkerManager::WorkerManager(int workers)
+WorkerManager::WorkerManager(int workers, LibfabricConnection * connection)
               :tasksIn(true)
               ,tasksOut(false)
 {
@@ -26,7 +28,7 @@ WorkerManager::WorkerManager(int workers)
 
 	//start the N threads
 	for (int i = 0 ; i < workers ; i++)
-		this->workers.emplace_back(&this->tasksIn, &this->tasksOut);
+		this->workers.emplace_back(&this->tasksIn, &this->tasksOut, connection);
 }
 
 /****************************************************/

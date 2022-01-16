@@ -78,3 +78,37 @@ TEST(TestWorkerManager, run_many)
 		EXPECT_TRUE(done->ran);
 	}
 }
+
+/****************************************************/
+TEST(TestWorkerManager, connection_signal)
+{
+	//start a listening server
+	LibfabricDomain domain("localhost", "8668", true);
+	LibfabricConnection connection(&domain, true);
+
+	//start worker
+	WorkerManager wmanager(1, &connection);
+	TestWorkerManagerTask task;
+
+	//make it wait
+	std::thread connectionThread([&connection, &wmanager](){
+		//make passive polling, this should sleep until the task has finished
+		connection.poll(false);
+		//pop the task and check its state
+		TestWorkerManagerTask * task = dynamic_cast<TestWorkerManagerTask*>(wmanager.pollFinishedTask(false));
+		//check
+		EXPECT_NE(nullptr, task);
+		if (task != NULL) {
+			EXPECT_TRUE(task->ran);
+		}
+	});
+
+	//push the task
+	wmanager.pushTask(&task);
+
+	//wait connection thread, it should wake up
+	connectionThread.join();
+
+	//check
+	EXPECT_TRUE(task.ran);
+}

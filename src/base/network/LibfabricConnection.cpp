@@ -1069,6 +1069,19 @@ int LibfabricConnection::pollForCompletion(struct fid_cq * cq, struct fi_cq_msg_
 
 /****************************************************/
 /**
+ * Wakeup the pollForCompletion function if it is in passive polling mode.
+**/
+void LibfabricConnection::signalPassivePolling(void)
+{
+	//check is passive
+	if (passivePolling) {
+		int status = fi_cq_signal(cq);
+		LIBFABRIC_CHECK_STATUS("fi_cq_signal", status);
+	}
+}
+
+/****************************************************/
+/**
  * Define various hooks to be called on events.
  * @param hookOnEndpointConnect Provide a lambda function to be called on incomming connection.
 **/

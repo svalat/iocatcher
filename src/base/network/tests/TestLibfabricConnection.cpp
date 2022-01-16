@@ -20,15 +20,15 @@ using namespace IOC;
 
 /****************************************************/
 //helper function to quickly build a client connected to a server and play exchanges
-void clientServer(std::function<void(LibfabricConnection & connection,int clientId)> serverAction, std::function<void(LibfabricConnection & connection)> clientAction)
+void clientServer(std::function<void(LibfabricConnection & connection,int clientId)> serverAction, std::function<void(LibfabricConnection & connection)> clientAction, bool passivePolling = false)
 {
 	bool gotConnection = false;
 	volatile bool serverReady = false;
 
 	//server
-	std::thread server([&gotConnection, &serverReady, &serverAction]{
+	std::thread server([&gotConnection, &serverReady, &serverAction, passivePolling]{
 		LibfabricDomain domain("127.0.0.1", "8446", true);
-		LibfabricConnection connection(&domain, false);
+		LibfabricConnection connection(&domain, passivePolling);
 		connection.postReceives(1024*1024, 64);
 		int clientId = 0;
 		connection.setHooks([&gotConnection,&clientId](int id) {
@@ -49,9 +49,9 @@ void clientServer(std::function<void(LibfabricConnection & connection,int client
 	while(!serverReady){};
 
 	//client
-	std::thread client([&clientAction]{
+	std::thread client([&clientAction, passivePolling]{
 		LibfabricDomain domain("127.0.0.1", "8446", false);
-		LibfabricConnection connection(&domain, false);
+		LibfabricConnection connection(&domain, passivePolling);
 		connection.postReceives(IOC_POST_RECEIVE_READ, 2);
 		connection.joinServer();
 		clientAction(connection);
@@ -726,4 +726,34 @@ TEST(TestLibfabricConnection, sendMessageNoPollWakeup_serialize)
 
 	ASSERT_TRUE(gotMessage);
 	ASSERT_TRUE(sendMessage);
+}
+
+//spawn a server and try to connect a client on it.
+TEST(TestLibfabricConnection, signalPassivePolling)
+{
+	//vars
+	volatile bool serverOk = false;
+	volatile bool clientOk = false;
+	LibfabricConnection * serverConnection = NULL;
+
+	//play client server
+	clientServer([&serverOk, &serverConnection](LibfabricConnection & connection, int clientId){
+		//>>>> server <<<<
+		serverConnection = &connection;
+		connection.poll(false);
+		connection.poll(false);
+		serverOk = true;
+	},[&clientOk, &serverOk, &serverConnection](LibfabricConnection & connection){
+		//>>>> client <<<<
+		clientOk = true;
+		//wake up the server
+		while (serverConnection == NULL) {};
+			serverConnection->signalPassivePolling();
+		//wait server
+		while(!serverOk) {};
+	}, true);
+
+	//check
+	EXPECT_TRUE(clientOk);
+	EXPECT_TRUE(serverOk);
 }
