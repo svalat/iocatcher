@@ -24,6 +24,7 @@ TaskIO::TaskIO(TaksIOType ioType, const IORange & ioRange)
 	//init
 	this->ioType = ioType;
 	this->active = false;
+	this->blockingDependencies = 0;
 }
 
 /****************************************************/
@@ -75,6 +76,9 @@ void TaskIO::registerToUnblock(TaskIO * task)
 
 	//register in list
 	this->toUnblock.push_back(task);
+
+	//increment the blocking counter on the remote task
+	task->blockingDependencies++;
 }
 
 /****************************************************/
@@ -94,3 +98,16 @@ void TaskIO::activate(void)
 {
 	this->active = true;
 };
+
+/****************************************************/
+bool TaskIO::unblock(void)
+{
+	//check
+	assume(this->blockingDependencies > 0, "Try to unblock a task which is already unblocked !");
+
+	//decrement
+	this->blockingDependencies--;
+
+	//return true if unblocked
+	return (this->blockingDependencies == 0);
+}

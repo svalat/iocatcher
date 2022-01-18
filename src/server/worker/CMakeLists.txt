@@ -7,7 +7,7 @@
 ######################################################
 
 ######################################################
-set(SERVER_WORKER_SRC TaskIO.cpp Worker.cpp WorkerManager.cpp)
+set(SERVER_WORKER_SRC TaskIO.cpp Worker.cpp WorkerManager.cpp TaskScheduler.cpp)
 
 ######################################################
 add_library(ioc-server-worker OBJECT ${SERVER_WORKER_SRC})

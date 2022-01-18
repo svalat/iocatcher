@@ -58,6 +58,8 @@ class TaskIO : public Task
 		std::deque<TaskIO*> & getBlockedTasks(void);
 		bool canRunInParallel(const TaskIO * task) const;
 		bool collide(const TaskIO * task) const {return this->ioRange.collide(task->ioRange);};
+		bool isBlocked(void) const {return this->blockingDependencies > 0;};
+		bool unblock(void);
 	private:
 		static inline bool oneIs(const TaskIO * task1, const TaskIO * task2, TaksIOType type);
 		static inline bool oneOrTheOtherIs(const TaskIO * task1, const TaskIO * task2, TaksIOType type1, TaksIOType type2);
@@ -67,6 +69,8 @@ class TaskIO : public Task
 		std::deque<TaskIO*> toUnblock;
 		/** Object range to which the IO applies. **/
 		IORange ioRange;
+		/** Count blocking dependencies to know when we can start the task. **/
+		int blockingDependencies;
 		/** Define the type of IO. **/
 		TaksIOType ioType;
 		/** Is in active list. **/
