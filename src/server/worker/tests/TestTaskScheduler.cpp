@@ -45,7 +45,7 @@ TEST(TestTaskScheduler, pushTask_single)
 	ASSERT_FALSE(taskRead.isBlocked());
 
 	//pop it
-	TaskDeque toStart;
+	TaskVecor toStart;
 	sched.popFinishedTask(toStart, &taskRead);
 	ASSERT_EQ(0, toStart.size());
 }
@@ -73,7 +73,7 @@ TEST(TestTaskScheduler, pushTask_two_parallel_no_collide)
 	ASSERT_FALSE(taskRead2.isBlocked());
 
 	//pop it
-	TaskDeque toStart;
+	TaskVecor toStart;
 	sched.popFinishedTask(toStart, &taskRead1);
 	ASSERT_EQ(0, toStart.size());
 	sched.popFinishedTask(toStart, &taskRead2);
@@ -103,7 +103,7 @@ TEST(TestTaskScheduler, pushTask_two_parallel)
 	ASSERT_FALSE(taskRead2.isBlocked());
 
 	//pop it
-	TaskDeque toStart;
+	TaskVecor toStart;
 	sched.popFinishedTask(toStart, &taskRead1);
 	ASSERT_EQ(0, toStart.size());
 	sched.popFinishedTask(toStart, &taskRead2);
@@ -133,7 +133,7 @@ TEST(TestTaskScheduler, pushTask_two_no_parallel)
 	ASSERT_TRUE(taskRead2.isBlocked());
 
 	//pop it
-	TaskDeque toStart;
+	TaskVecor toStart;
 	sched.popFinishedTask(toStart, &taskWrite1);
 
 	//check has scheduled
@@ -178,7 +178,7 @@ TEST(TestTaskScheduler, pushTask_three_no_parallel_all_deps)
 	ASSERT_TRUE(taskRead3.isBlocked());
 
 	//pop it
-	TaskDeque toStart;
+	TaskVecor toStart;
 	sched.popFinishedTask(toStart, &taskWrite1);
 
 	//check has scheduled
@@ -232,7 +232,7 @@ TEST(TestTaskScheduler, pushTask_three_two_parallel)
 	ASSERT_TRUE(taskRead3.isBlocked());
 
 	//pop it
-	TaskDeque toStart;
+	TaskVecor toStart;
 	sched.popFinishedTask(toStart, &taskWrite1);
 
 	//check has scheduled

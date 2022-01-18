@@ -19,6 +19,8 @@
 #include "../../base/network/LibfabricDomain.hpp"
 #include "../../base/network/LibfabricConnection.hpp"
 #include "../../base/network/TcpServer.hpp"
+#include "../worker/WorkerManager.hpp"
+#include "../worker/TaskScheduler.hpp"
 
 /****************************************************/
 namespace IOC
@@ -42,6 +44,7 @@ class Server
 		void setMemoryBackend(MemoryBackend * MemoryBackend);
 		void setNvdimm(const std::vector<std::string> & nvdimmPaths);
 	private:
+		void scheduleTasks(void);
 		//setups
 		void setupTcpServer(int port, int maxport);
 		//conn tracking
@@ -72,6 +75,10 @@ class Server
 		StorageBackend * storageBackend;
 		/** Keep track of the memory backend in use. **/
 		MemoryBackend * memoryBackend;
+		/** Worker manager to handle the task execution. **/
+		WorkerManager * workerManager;
+		/** Implement a task scheduler to send the tasks to the worker. **/
+		TaskScheduler taskScheduler;
 };
 
 }

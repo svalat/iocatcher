@@ -30,6 +30,7 @@ static struct argp_option options[] = {
 	{ "active-polling", 'p', 0, 0, "Enable active polling."},
 	{ "no-auth", 'a', 0, 0, "Disable client auth."},
 	{ "verbose", 'v', "CATEGORIES", 0, "Enable verbose mode and optionaly provide a filter. Can use 'all' or '*' or 'cat1,cat2...'."},
+	{ "workers", 'w', "COUNT", 0, "Configure the number of worker threads to be used."},
 	{ 0 } 
 };
 
@@ -79,6 +80,7 @@ static error_t parseOptions(int key, char *arg, struct argp_state *state) {
 		case 'p': config->activePolling = true; break;
 		case 'a': config->clientAuth = false; break;
 		case 'm': config->meroRcFile = strdup(arg); break;
+		case 'w': config->workers = atoi(arg); break;
 		case 'v':
 			if (arg == nullptr)
 				DAQ::Debug::enableAll();
@@ -109,6 +111,7 @@ Config::Config(void)
 	this->clientAuth = true;
 	this->activePolling = true;
 	this->broadcastErrorToClients = false;
+	this->workers = 4;
 }
 
 /****************************************************/
@@ -119,6 +122,7 @@ void Config::initForUnitTests(void)
 {
 	this->listenIP = "127.0.0.1";
 	this->activePolling = true;
+	this->workers = 0;
 }
 
 /****************************************************/

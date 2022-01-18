@@ -105,7 +105,7 @@ void TaskScheduler::removeFromList(TaskIO * task)
 
 /****************************************************/
 //TODO otimization by giving multiple task to unregister in one batch
-void TaskScheduler::popFinishedTask(TaskDeque & toStart, TaskIO * task)
+void TaskScheduler::popFinishedTask(TaskVecor & toStart, TaskIO * task)
 {
 	//check
 	assert(task != NULL);

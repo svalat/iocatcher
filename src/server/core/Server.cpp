@@ -45,6 +45,7 @@ ServerStats::ServerStats(void)
  * message reception on the libfabric connection.
  * @param config Pointer to the config object.
  * @param port Port to listen on (libfabric port which is tcp port + 1).
+ * @param workers The number of workers to use, can be 0 for none.
 **/
 Server::Server(const Config * config, const std::string & port)
 {
@@ -90,6 +91,9 @@ Server::Server(const Config * config, const std::string & port)
 	this->connection->registerHook(IOC_LF_MSG_OBJ_WRITE, new HookObjectWrite(this->container, &this->stats));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_COW, new HookObjectCow(this->container));
 
+	//spawn the worker threads
+	this->workerManager = new WorkerManager(config->workers, this->connection);
+
 	//set error dispatch
 	if (config->broadcastErrorToClients) {
 		DAQ::Debug::setBeforeAbortHandler([this](const std::string & message){
@@ -120,6 +124,7 @@ Server::~Server(void)
 	delete this->connection;
 	delete this->domain;
 	delete this->tcpServer;
+	delete this->workerManager;
 }
 
 /****************************************************/
@@ -201,14 +206,49 @@ void Server::setOnClientConnect(std::function<void(int id)> handler)
 }
 
 /****************************************************/
+void Server::scheduleTasks(void)
+{
+	//poll a task
+	//TODO we can optimize by polling all pending tasks in one go
+	Task * task = this->workerManager->pollFinishedTask(false);
+
+	//while we have tasks to poll
+	while (task != NULL) {
+		//cast
+		TaskIO * ioTask = dynamic_cast<TaskIO*>(task);
+
+		//look for schedule
+		TaskVecor toStart;
+		taskScheduler.popFinishedTask(toStart, ioTask);
+
+		//schedule all
+		for (auto & it : toStart)
+			this->workerManager->pushTask(it);
+
+		//poll again
+		task = this->workerManager->pollFinishedTask(false);
+	}
+}
+
+/****************************************************/
 /**
  * Polling function. it polls until this->pollRunning become false.
 **/
 void Server::poll(void)
 {
+	//start running
 	this->pollRunning = true;
-	while(this->pollRunning)
+
+	//while running
+	while(this->pollRunning) {
+		//poll network
 		this->connection->poll(false);
+
+		//look on the tasks to be finished
+		this->scheduleTasks();
+	}
+
+	//restart as running to wakeup the wait loop in stop()
 	this->pollRunning = true;
 }
 

@@ -10,7 +10,7 @@
 
 /****************************************************/
 #include <list>
-#include <deque>
+#include <vector>
 #include "TaskIO.hpp"
 
 /****************************************************/
@@ -18,7 +18,7 @@ namespace IOC
 {
 
 /****************************************************/
-typedef std::deque<TaskIO*> TaskDeque;
+typedef std::vector<TaskIO*> TaskVecor;
 
 /****************************************************/
 /**
@@ -30,7 +30,7 @@ class TaskScheduler
 {
 	public:
 		bool pushTask(TaskIO * task);
-		void popFinishedTask(TaskDeque & toStart, TaskIO * task);
+		void popFinishedTask(TaskVecor & toStart, TaskIO * task);
 	private:
 		void removeFromList(TaskIO * task);
 		bool canSchedule(TaskIO * task);

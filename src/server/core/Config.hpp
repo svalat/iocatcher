@@ -41,6 +41,8 @@ class Config
 		bool activePolling;
 		/** On assume/fatal, boradcast the error message to the clients. To be disabled for unit tests. **/
 		bool broadcastErrorToClients;
+		/** Number of workers. **/
+		int workers;
 };
 
 }

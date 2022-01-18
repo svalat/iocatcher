@@ -52,8 +52,15 @@ void WorkerManager::pushTask(Task * task)
 	assert(task != NULL);
 	assert(task != WORKER_EXIT_TASK);
 
-	//push in queue
-	this->tasksIn.push(task);
+	//check if has worker
+	if (this->workers.empty()) {
+		//if not worker we execute immediately
+		task->runAction();
+		this->tasksOut.push(task);
+	} else {
+		//if we have workers, we push in the work queue.
+		this->tasksIn.push(task);
+	}
 }
 
 /****************************************************/

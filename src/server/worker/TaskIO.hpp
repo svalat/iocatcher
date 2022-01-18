@@ -29,10 +29,10 @@ enum TaksIOType
 /****************************************************/
 struct IORange
 {
-	inline IORange(size_t offset, size_t size);
+	inline IORange(size_t address, size_t size);
 	inline bool collide(const IORange & range) const;
 	inline size_t end(void) const;
-	size_t offset;
+	size_t address;
 	size_t size;
 };
 
@@ -78,22 +78,22 @@ class TaskIO : public Task
 };
 
 /****************************************************/
-inline IORange::IORange(size_t offset, size_t size)
+inline IORange::IORange(size_t address, size_t size)
 {
-	this->offset = offset;
+	this->address = address;
 	this->size = size; 
 };
 
 /****************************************************/
 inline bool IORange::collide(const IORange & range) const
 {
-	return ! (range.end() <= this->offset || range.offset >= this->end()); 
+	return ! (range.end() <= this->address || range.address >= this->end()); 
 };
 
 /****************************************************/
 inline size_t IORange::end(void) const
 {
-	return this->offset + this->size;
+	return this->address + this->size;
 };
 
 }
