@@ -29,11 +29,31 @@ enum TaksIOType
 /****************************************************/
 struct IORange
 {
+	IORange(void);
 	inline IORange(size_t address, size_t size);
 	inline bool collide(const IORange & range) const;
 	inline size_t end(void) const;
 	size_t address;
 	size_t size;
+};
+
+/****************************************************/
+class IORanges
+{
+	public:
+		IORanges(IORanges && orig);
+		IORanges(const IORanges & orig);
+		IORanges(size_t count);
+		IORanges(const IORange & uniqRange);
+		~IORanges(void);
+		IORanges & push(const IORange & range);
+		IORanges & push(size_t address, size_t size);
+		bool collide(const IORanges & ranges) const;
+		bool ready(void) const;
+	private:
+		IORange * ranges;
+		int count;
+		int cursor;
 };
 
 /****************************************************/
@@ -50,14 +70,14 @@ struct IORange
 class TaskIO : public Task
 {
 	public:
-		TaskIO(TaksIOType ioType, const IORange & ioRange);
+		TaskIO(TaksIOType ioType, const IORanges & ioRanges);
 		virtual ~TaskIO(void) {};
 		bool isActive(void) const;
 		void activate(void);
 		void registerToUnblock(TaskIO * task);
 		std::deque<TaskIO*> & getBlockedTasks(void);
 		bool canRunInParallel(const TaskIO * task) const;
-		bool collide(const TaskIO * task) const {return this->ioRange.collide(task->ioRange);};
+		bool collide(const TaskIO * task) const {return this->ioRanges.collide(task->ioRanges);};
 		bool isBlocked(void) const {return this->blockingDependencies > 0;};
 		bool unblock(void);
 	private:
@@ -68,7 +88,7 @@ class TaskIO : public Task
 		/** List of task to unblock when this one finishes. **/
 		std::deque<TaskIO*> toUnblock;
 		/** Object range to which the IO applies. **/
-		IORange ioRange;
+		IORanges ioRanges;
 		/** Count blocking dependencies to know when we can start the task. **/
 		int blockingDependencies;
 		/** Define the type of IO. **/

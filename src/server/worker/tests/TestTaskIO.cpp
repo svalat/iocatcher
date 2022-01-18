@@ -17,7 +17,7 @@ using namespace testing;
 class TaskIODummy : public TaskIO
 {
 	public:
-		TaskIODummy(TaksIOType ioType, const IORange & ioRange):TaskIO(ioType, ioRange) {};
+		TaskIODummy(TaksIOType ioType, const IORanges & ioRanges):TaskIO(ioType, ioRanges) {};
 		virtual void runAction(void) override {};
 		virtual void runPostAction(void) override {};
 };
@@ -54,6 +54,45 @@ TEST(TestIORange, collide)
 
 	//with third one
 	EXPECT_TRUE(range_30_50.collide(range_35_60));
+}
+
+/****************************************************/
+TEST(TestIORanges, constructor)
+{
+	IORanges ranges(1);
+}
+
+/****************************************************/
+TEST(TestIORanges, push)
+{
+	IORanges ranges(4);
+	ranges.push(IORange(1, 10));
+	ranges.push(1, 10);
+	ranges.push(20, 10).push(30,5);
+}
+
+/****************************************************/
+TEST(TestIORanges, collide)
+{
+	//first range
+	IORanges ranges1(2);
+	ranges1.push(100,5);
+	ranges1.push(105,5);
+
+	//second
+	IORanges ranges2(1);
+	ranges2.push(103, 5);
+
+	//second
+	IORanges ranges3(3);
+	ranges3.push(20, 5);
+	ranges3.push(25, 5);
+	ranges3.push(30, 5);
+
+	//check collide
+	EXPECT_TRUE(ranges1.collide(ranges2));
+	EXPECT_FALSE(ranges1.collide(ranges3));
+	EXPECT_FALSE(ranges2.collide(ranges3));
 }
 
 /****************************************************/
