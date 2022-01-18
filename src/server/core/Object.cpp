@@ -251,6 +251,7 @@ ObjectSegmentDescr Object::loadSegment(size_t offset, size_t size, bool load, bo
  * Loop on all the segments and flush the dirty one overlapping the given range.
  * @param offset Base offset from where to flush.
  * @param size Size of the range to flus. Use 0 to flush all.
+ * @todo: handle non fully overlapping range.
 **/
 int Object::flush(size_t offset, size_t size)
 {

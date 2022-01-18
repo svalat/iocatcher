@@ -58,7 +58,12 @@ class TaskIO : public Task
 	private:
 		/** List of task to unblock when this one finishes. **/
 		std::deque<TaskIO*> toUnblock;
-		/** Object range to which the IO applies. **/
+		/** 
+		 * Object range to which the IO applies.
+		 * @todo we need a multi-range because we need to protect the memory buffer which can be shared
+		 * between multiple objects. We can optimize and use a single range with object ID
+		 * if we remove the copy-on-write feature.
+		**/
 		IORanges ioRanges;
 		/** Count blocking dependencies to know when we can start the task. **/
 		int blockingDependencies;

@@ -33,6 +33,11 @@ bool TaskScheduler::pushTask(TaskIO * task)
 }
 
 /****************************************************/
+/**
+ * @todo: can do an optimization by registering the taks to all colliding one
+ * this might consume more memory. To be experimented to see if it is really
+ * more efficient.
+**/
 bool TaskScheduler::canSchedule(TaskIO * task)
 {
 	//vars
@@ -51,9 +56,6 @@ bool TaskScheduler::canSchedule(TaskIO * task)
 	//    if we can schedule the task. As we register to the latest task
 	//    in the list, there is chances that previous also blocking deps are finished
 	//    so we do not loose time to register to all.
-	//@TODO: can do an optimization by registering the taks to all colliding one
-	//this might consume more memory. To be experimented to see if it is really
-	//more efficient.
 	bool hasSeenCurrent = false;
 	for (auto it = this->tasks.rbegin() ; it != this->tasks.rend() ; ++it) {
 		//if need to check

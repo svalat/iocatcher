@@ -121,6 +121,9 @@ IORanges & IORanges::push(const IORange & range)
 }
 
 /****************************************************/
+/** 
+ * @todo make an optimisation by sorting them
+**/
 bool IORanges::collide(const IORanges & ranges) const
 {
 	//check
@@ -128,7 +131,6 @@ bool IORanges::collide(const IORanges & ranges) const
 	assert(ranges.cursor == ranges.count);
 
 	//search for collide
-	//@TODO make an optimisation by sorting them
 	for (int i = 0 ; i < this->count ; i++)
 		for (int j = 0 ; j < ranges.count; j++)
 			if (this->ranges[i].collide(ranges.ranges[j]))
