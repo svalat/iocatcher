@@ -249,23 +249,25 @@ ObjectSegmentDescr Object::loadSegment(size_t offset, size_t size, bool load, bo
 /****************************************************/
 /**
  * Loop on all the segments and flush the dirty one overlapping the given range.
+ * @param deferredOps A list of deferred operation to be filled by the flush function.
  * @param offset Base offset from where to flush.
  * @param size Size of the range to flus. Use 0 to flush all.
  * @todo: handle non fully overlapping range.
 **/
-int Object::flush(size_t offset, size_t size)
+void Object::flush(DeferredOperationList & deferredOps, size_t offset, size_t size)
 {
+	DeferredOperation op(DEFEERRED_WRITE);
+	op.setDitryAction(DEFFERED_DIRTY_SET_TRUE);
 	int ret = 0;
 	for (auto & it : this->segmentMap) {
 		if (it.second.isDirty()) {
 			if (size == 0 || it.second.overlap(offset, size)) {
-				if (this->pwrite(it.second.getBuffer(), it.second.getSize(), it.second.getOffset()) != (ssize_t)it.second.getSize())
-					ret = -1;
-				it.second.setDirty(false);
+				op.setObjectInfos(this, this->storageBackend, &it.second);
+				op.setData(it.second.getBuffer(), it.second.getSize(), it.second.getOffset());
+				deferredOps.push_back(op);
 			}
 		}
 	}
-	return ret;
 }
 
 /****************************************************/
@@ -632,4 +634,19 @@ bool Object::checkBuffer(size_t offset, size_t size, char value)
 
 	//ok
 	return true;
+}
+
+/****************************************************/
+/**
+ * @todo: optimize with find.
+**/
+ObjectSegment * Object::getObjectSegment(size_t offset)
+{
+	//search object
+	for (auto & it : this->segmentMap)
+		if (it.second.overlap(offset, 1))
+			return &it.second;
+	
+	//not found
+	return NULL;
 }

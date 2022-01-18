@@ -12,6 +12,7 @@ set(SERVER_CORE_SRC Object.cpp
                     Server.cpp Config.cpp
                     StorageBackend.cpp
                     MemoryBackend.cpp
+                    DeferredOperation.cpp
 )
 
 ######################################################

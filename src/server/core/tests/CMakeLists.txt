@@ -18,6 +18,7 @@ set(TEST_NAMES TestObject
                TestConfig
                TestBackend
                TestObjectSegment
+               TestDeferredOperation
 )
 
 ######################################################
