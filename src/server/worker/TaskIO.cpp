@@ -14,7 +14,7 @@
 using namespace IOC;
 
 /****************************************************/
-TaskIO::TaskIO(TaksIOType ioType, IORange ioRange)
+TaskIO::TaskIO(TaksIOType ioType, const IORange & ioRange)
        :ioRange(ioRange)
 {
 	//check
@@ -24,19 +24,6 @@ TaskIO::TaskIO(TaksIOType ioType, IORange ioRange)
 	//init
 	this->ioType = ioType;
 	this->active = false;
-	this->toUnlock = NULL;
-	this->blockingDependencies = 0;
-
-	//the schedule group is a self circular list by default
-	this->schedGroupNext = this;
-}
-
-/****************************************************/
-void TaskIO::registerInScheduleHierarchy(TaskIO * task)
-{
-	//check
-	assert(task != NULL);
-	assert(this->ioRange.collide(task->ioRange));
 }
 
 /****************************************************/
@@ -76,3 +63,34 @@ bool TaskIO::canRunInParallel(const TaskIO * task) const
 		return false;
 	}
 }
+
+/****************************************************/
+void TaskIO::registerToUnblock(TaskIO * task)
+{
+	//check
+	assert(this != NULL);
+	assert(task != NULL);
+	assert(this->collide(task));
+	assert(this->canRunInParallel(task) == false);
+
+	//register in list
+	this->toUnblock.push_back(task);
+}
+
+/****************************************************/
+std::deque<TaskIO*> & TaskIO::getBlockedTasks(void)
+{
+	return this->toUnblock;
+}
+
+/****************************************************/
+bool TaskIO::isActive(void) const
+{
+	return this->active;
+};
+
+/****************************************************/
+void TaskIO::activate(void)
+{
+	this->active = true;
+};

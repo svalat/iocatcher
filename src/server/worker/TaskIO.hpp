@@ -10,6 +10,8 @@
 
 /****************************************************/
 #include <cstdlib>
+#include <deque>
+#include "Task.hpp"
 
 /****************************************************/
 namespace IOC
@@ -45,14 +47,15 @@ struct IORange
  *    and decrement the dependency counter of each task colliding with
  *    the current one. If it fall to 0, then the task can be started.
 **/
-class TaskIO
+class TaskIO : public Task
 {
 	public:
-		TaskIO(TaksIOType ioType, IORange ioRange);
+		TaskIO(TaksIOType ioType, const IORange & ioRange);
 		virtual ~TaskIO(void) {};
-		bool isActive(void) const {return this->active;};
-		void activate(void) {this->active = true;};
-		void registerInScheduleHierarchy(TaskIO * task);
+		bool isActive(void) const;
+		void activate(void);
+		void registerToUnblock(TaskIO * task);
+		std::deque<TaskIO*> & getBlockedTasks(void);
 		bool canRunInParallel(const TaskIO * task) const;
 		bool collide(const TaskIO * task) const {return this->ioRange.collide(task->ioRange);};
 	private:
@@ -60,14 +63,10 @@ class TaskIO
 		static inline bool oneOrTheOtherIs(const TaskIO * task1, const TaskIO * task2, TaksIOType type1, TaksIOType type2);
 		static inline bool both(const TaskIO * task1, const TaskIO * task2, TaksIOType type);
 	private:
-		/** Task to unlock when it finishes. It can be one of the schedule groupe to execute next. **/
-		TaskIO * toUnlock;
-		/** Next task in same schedule group (which can be launched in parallel). It forms a circular single linked list. **/
-		TaskIO * schedGroupNext;
+		/** List of task to unblock when this one finishes. **/
+		std::deque<TaskIO*> toUnblock;
 		/** Object range to which the IO applies. **/
 		IORange ioRange;
-		/** Count the number of tasks in the previous schedule group which block the current one. **/
-		size_t blockingDependencies;
 		/** Define the type of IO. **/
 		TaksIOType ioType;
 		/** Is in active list. **/
