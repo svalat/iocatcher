@@ -81,18 +81,18 @@ Server::Server(const Config * config, const std::string & port)
 	//create container
 	this->container = new Container(storageBackend, memoryBackend, 8*1024*1024);
 
+	//spawn the worker threads
+	this->workerManager = new WorkerManager(config->workers, this->connection);
+
 	//register hooks
 	this->connection->registerHook(IOC_LF_MSG_PING, new HookPingPong(this->domain));
-	this->connection->registerHook(IOC_LF_MSG_OBJ_FLUSH, new HookFlush(this->container));
+	this->connection->registerHook(IOC_LF_MSG_OBJ_FLUSH, new HookFlush(this->container, &taskScheduler, workerManager));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_RANGE_REGISTER, new HookRangeRegister(this->config, this->container));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_RANGE_UNREGISTER, new HookRangeUnregister(this->config, this->container));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_CREATE, new HookObjectCreate(this->container));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_READ, new HookObjectRead(this->container, &this->stats));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_WRITE, new HookObjectWrite(this->container, &this->stats));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_COW, new HookObjectCow(this->container));
-
-	//spawn the worker threads
-	this->workerManager = new WorkerManager(config->workers, this->connection);
 
 	//set error dispatch
 	if (config->broadcastErrorToClients) {
@@ -206,16 +206,21 @@ void Server::setOnClientConnect(std::function<void(int id)> handler)
 }
 
 /****************************************************/
+/** 
+ * @todo we can optimize by polling all pending tasks in one go 
+**/
 void Server::scheduleTasks(void)
 {
 	//poll a task
-	//TODO we can optimize by polling all pending tasks in one go
 	Task * task = this->workerManager->pollFinishedTask(false);
 
 	//while we have tasks to poll
 	while (task != NULL) {
 		//cast
 		TaskIO * ioTask = dynamic_cast<TaskIO*>(task);
+
+		//call end operation
+		ioTask->runPostAction();
 
 		//look for schedule
 		TaskVecor toStart;

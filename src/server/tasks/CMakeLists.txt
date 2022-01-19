@@ -1,0 +1,17 @@
+######################################################
+#  PROJECT  : IO Catcher                             #
+#  LICENSE  : Apache 2.0                             #
+#  COPYRIGHT: 2020-2022 Bull SAS All rights reserved #
+######################################################
+
+######################################################
+set(SERVER_TASKS_SRC TaskObjectFlush.cpp)
+
+######################################################
+add_library(ioc-server-tasks OBJECT ${SERVER_TASKS_SRC})
+SET_TARGET_PROPERTIES(ioc-server-tasks PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+######################################################
+#if (ENABLE_TESTS)
+#	add_subdirectory(tests)
+#endif (ENABLE_TESTS)

@@ -23,8 +23,14 @@ WorkerManager::WorkerManager(int workers, LibfabricConnection * connection)
               :tasksIn(true)
               ,tasksOut(false)
 {
+	//check
+	assert(connection != NULL);
+
 	//debug
 	IOC_DEBUG_ARG("worker", "Manager configured to launch %1 workers").arg(workers).end();
+
+	//set
+	this->connection = connection;
 
 	//start the N threads
 	for (int i = 0 ; i < workers ; i++)
@@ -57,6 +63,7 @@ void WorkerManager::pushTask(Task * task)
 		//if not worker we execute immediately
 		task->runAction();
 		this->tasksOut.push(task);
+		this->connection->signalPassivePolling();
 	} else {
 		//if we have workers, we push in the work queue.
 		this->tasksIn.push(task);

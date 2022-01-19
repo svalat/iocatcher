@@ -10,6 +10,8 @@
 /****************************************************/
 #include "base/network/Hook.hpp"
 #include "../core/Container.hpp"
+#include "../worker/TaskScheduler.hpp"
+#include "../worker/WorkerManager.hpp"
 
 /****************************************************/
 namespace IOC
@@ -22,11 +24,13 @@ namespace IOC
 class HookFlush : public Hook
 {
 	public:
-		HookFlush(Container * container);
+		HookFlush(Container * container, TaskScheduler * taskScheduler, WorkerManager * workflowManager);
 		virtual LibfabricActionResult onMessage(LibfabricConnection * connection, LibfabricClientRequest & request) override;
 	private:
 		/** Pointer to the container to be able to access objects **/
 		Container * container;
+		TaskScheduler * taskScheduler;
+		WorkerManager * workflowManager;
 };
 
 }

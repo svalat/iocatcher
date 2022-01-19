@@ -7,6 +7,7 @@
 /****************************************************/
 #include "base/common/Debug.hpp"
 #include "base/network/LibfabricConnection.hpp"
+#include "../tasks/TaskObjectFlush.hpp"
 #include "HookFlush.hpp"
 
 /****************************************************/
@@ -17,9 +18,17 @@ using namespace IOC;
  * Constructor of the flush hook.
  * @param container The container to be able to access objects to flush.
 **/
-HookFlush::HookFlush(Container * container)
+HookFlush::HookFlush(Container * container, TaskScheduler * taskScheduler, WorkerManager * workflowManager)
 {
+	//check
+	assert(container != NULL);
+	assert(taskScheduler != NULL);
+	assert(workflowManager != NULL);
+
+	//set
 	this->container = container;
+	this->taskScheduler = taskScheduler;
+	this->workflowManager = workflowManager;
 }
 
 /****************************************************/
@@ -40,14 +49,11 @@ LibfabricActionResult HookFlush::onMessage(LibfabricConnection * connection, Lib
 	DeferredOperationList ops;
 	object.flush(ops, objFlush.offset, objFlush.size);
 
-	//call ops
-	int ret = ops.runAll();
+	//build task to delegate to a worker thread
+	TaskIO * task = new TaskObjectFlush(connection, request, ops);
+	if (this->taskScheduler->pushTask(task))
+		this->workflowManager->pushTask(task);
 
-	//send response
-	connection->sendResponse(IOC_LF_MSG_OBJ_FLUSH_ACK, request.lfClientId, ret);
-
-	//republish
-	request.terminate();
-
+	//ok
 	return LF_WAIT_LOOP_KEEP_WAITING;
 }

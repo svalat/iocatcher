@@ -34,6 +34,8 @@ class WorkerManager
 		WorkerTaskQueue tasksOut;
 		/** List of active threads. **/
 		std::list<Worker> workers;
+		/** keep track of the connection to signal if we are running without workers. **/
+		LibfabricConnection * connection;
 };
 
 }
