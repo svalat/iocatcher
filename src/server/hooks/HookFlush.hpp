@@ -30,7 +30,7 @@ class HookFlush : public Hook
 		/** Pointer to the container to be able to access objects **/
 		Container * container;
 		TaskScheduler * taskScheduler;
-		WorkerManager * workflowManager;
+		WorkerManager * workerManager;
 };
 
 }

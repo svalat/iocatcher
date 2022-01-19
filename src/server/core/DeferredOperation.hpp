@@ -11,7 +11,7 @@
 #include "StorageBackend.hpp"
 #include "ObjectSegment.hpp"
 #include "../worker/IORanges.hpp"
-#include <deque>
+#include <vector>
 
 /****************************************************/
 namespace IOC
@@ -57,7 +57,7 @@ class DeferredOperation
 };
 
 /****************************************************/
-class DeferredOperationList : public std::deque<DeferredOperation>
+class DeferredOperationList : public std::vector<DeferredOperation>
 {
 	public:
 		ssize_t runAll(void);

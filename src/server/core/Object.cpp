@@ -258,7 +258,6 @@ void Object::flush(DeferredOperationList & deferredOps, size_t offset, size_t si
 {
 	DeferredOperation op(DEFEERRED_WRITE);
 	op.setDitryAction(DEFFERED_DIRTY_SET_TRUE);
-	int ret = 0;
 	for (auto & it : this->segmentMap) {
 		if (it.second.isDirty()) {
 			if (size == 0 || it.second.overlap(offset, size)) {

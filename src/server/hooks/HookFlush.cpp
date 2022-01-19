@@ -28,7 +28,7 @@ HookFlush::HookFlush(Container * container, TaskScheduler * taskScheduler, Worke
 	//set
 	this->container = container;
 	this->taskScheduler = taskScheduler;
-	this->workflowManager = workflowManager;
+	this->workerManager = workflowManager;
 }
 
 /****************************************************/
@@ -52,7 +52,7 @@ LibfabricActionResult HookFlush::onMessage(LibfabricConnection * connection, Lib
 	//build task to delegate to a worker thread
 	TaskIO * task = new TaskObjectFlush(connection, request, ops);
 	if (this->taskScheduler->pushTask(task))
-		this->workflowManager->pushTask(task);
+		this->workerManager->pushTask(task);
 
 	//ok
 	return LF_WAIT_LOOP_KEEP_WAITING;
