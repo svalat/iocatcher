@@ -14,21 +14,14 @@ using namespace IOC;
 
 /****************************************************/
 TaskObjectFlush::TaskObjectFlush(LibfabricConnection * connection, LibfabricClientRequest & request, DeferredOperationList & ops)
-                :TaskIO(IO_TYPE_READ, ops.buildIORanges())
+                :TaskDeferredOps(IO_TYPE_READ, ops)
                 ,request(request)
-                ,ops(std::move(ops))
 {
 	//check
 	assert(connection != NULL);
 
 	//set
 	this->connection = connection;
-}
-
-/****************************************************/
-void TaskObjectFlush::runAction(void)
-{
-	this->ret = this->ops.runAll();
 }
 
 /****************************************************/

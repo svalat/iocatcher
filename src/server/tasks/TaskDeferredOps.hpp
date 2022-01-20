@@ -4,13 +4,13 @@
 *  COPYRIGHT: 2020-2022 Bull SAS All rights reserved *
 *****************************************************/
 
-#ifndef IOC_TASK_OBJECT_FLUSH_HPP
-#define IOC_TASK_OBJECT_FLUSH_HPP
+#ifndef IOC_TASK_DEFERRED_OPS_HPP
+#define IOC_TASK_DEFERRED_OPS_HPP
 
 /****************************************************/
 #include "../../base/network/LibfabricConnection.hpp"
 #include "../core/DeferredOperation.hpp"
-#include "TaskDeferredOps.hpp"
+#include "../worker/TaskIO.hpp"
 
 /****************************************************/
 namespace IOC
@@ -18,18 +18,19 @@ namespace IOC
 
 /****************************************************/
 /**
- * Implement the server side handling of ping-pong operations.
+ * Basic task to run operations
 **/
-class TaskObjectFlush : public TaskDeferredOps
+class TaskDeferredOps : public TaskIO
 {
 	public:
-		TaskObjectFlush(LibfabricConnection * connection, LibfabricClientRequest & request, DeferredOperationList & ops);
+		TaskDeferredOps(TaksIOType ioType, DeferredOperationList & ops);
+		virtual void runAction(void) override;
 		virtual void runPostAction(void) override;
-	private:
-		LibfabricConnection * connection;
-		LibfabricClientRequest request;
+	protected:
+		DeferredOperationList ops;
+		ssize_t ret;
 };
 
 }
 
-#endif //IOC_TASK_OBJECT_FLUSH_HPP
+#endif //IOC_TASK_DEFERRED_OPS_HPP

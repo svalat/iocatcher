@@ -43,7 +43,6 @@ void DeferredOperation::setObjectInfos(Object * object, StorageBackend * backend
 {
 	//check
 	assert(object != NULL);
-	assert(backend != NULL);
 	assert(segment != NULL);
 
 	//set
@@ -112,7 +111,7 @@ ssize_t DeferredOperationList::runAll(void)
 {
 	ssize_t ret = 0;
 	for (auto & op : *this)
-		if (op.run() != op.getSize())
+		if (op.run() != static_cast<ssize_t>(op.getSize()))
 			ret = -1;
 	return ret;
 }

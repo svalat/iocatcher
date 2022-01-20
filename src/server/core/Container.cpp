@@ -5,6 +5,7 @@
 *****************************************************/
 
 /****************************************************/
+#include "../tasks/TaskDeferredOps.hpp"
 #include "Container.hpp"
 
 /****************************************************/
@@ -199,4 +200,27 @@ bool Container::makeObjectFullCow(const ObjectId & sourceId, const ObjectId &des
 
 	//ok
 	return true;
+}
+
+/****************************************************/
+/**
+ * Launch tasks to flush all the object.
+ * @param runner The runner to be used to launch the created tasks.
+**/
+void Container::flushAllByTasks(TaskRunner * runner)
+{
+	//check
+	assert(runner != NULL);
+
+	//loop on all objects
+	for (auto & it : this->objects) {
+		//flush object
+		Object & object = *(it.second);
+		DeferredOperationList ops;
+		object.flush(ops, 0, 0);
+
+		//build task to delegate to a worker thread
+		TaskIO * task = new TaskDeferredOps(IO_TYPE_READ, ops);
+		runner->pushTask(task);
+	}
 }

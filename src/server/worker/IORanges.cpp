@@ -22,11 +22,11 @@ IORange::IORange(void)
 /****************************************************/
 IORanges::IORanges(size_t count)
 {
-	//check
-	assert(count > 0);
-
 	//allocate
-	this->ranges = new IORange[count];
+	if (count == 0)
+		this->ranges = NULL;
+	else
+		this->ranges = new IORange[count];
 
 	//init
 	this->count = count;

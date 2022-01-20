@@ -14,6 +14,7 @@
 #include "Object.hpp"
 #include "MemoryBackend.hpp"
 #include "StorageBackend.hpp"
+#include "../worker/TaskRunner.hpp"
 #include "../../base/network/LibfabricDomain.hpp"
 
 /****************************************************/
@@ -38,6 +39,7 @@ class Container
 		void setObjectSegmentsAlignement(size_t alignement);
 		void setStorageBackend(StorageBackend * storageBackend);
 		void setMemoryBackend(MemoryBackend * memoryBackend);
+		void flushAllByTasks(TaskRunner * runner);
 	private:
 		/** List ob objects identified by their object ID. **/
 		std::map<ObjectId, Object*> objects;

@@ -82,11 +82,11 @@ Server::Server(const Config * config, const std::string & port)
 	this->container = new Container(storageBackend, memoryBackend, 8*1024*1024);
 
 	//spawn the worker threads
-	this->workerManager = new WorkerManager(config->workers, this->connection);
+	this->taskRunner = new TaskRunner(config->workers, this->connection);
 
 	//register hooks
 	this->connection->registerHook(IOC_LF_MSG_PING, new HookPingPong(this->domain));
-	this->connection->registerHook(IOC_LF_MSG_OBJ_FLUSH, new HookFlush(this->container, &taskScheduler, workerManager));
+	this->connection->registerHook(IOC_LF_MSG_OBJ_FLUSH, new HookFlush(this->container, taskRunner));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_RANGE_REGISTER, new HookRangeRegister(this->config, this->container));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_RANGE_UNREGISTER, new HookRangeUnregister(this->config, this->container));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_CREATE, new HookObjectCreate(this->container));
@@ -118,13 +118,22 @@ Server::Server(const Config * config, const std::string & port)
 **/
 Server::~Server(void)
 {
+	//stop the server
 	this->stop();
+
+	//flush all
+	this->container->flushAllByTasks(this->taskRunner);
+
+	//wait all tasks to finish
+	this->taskRunner->waitAllFinished();
+
+	//delete all
 	delete this->container;
 	delete this->memoryBackend;
 	delete this->connection;
 	delete this->domain;
 	delete this->tcpServer;
-	delete this->workerManager;
+	delete this->taskRunner;
 }
 
 /****************************************************/
@@ -206,36 +215,6 @@ void Server::setOnClientConnect(std::function<void(int id)> handler)
 }
 
 /****************************************************/
-/** 
- * @todo we can optimize by polling all pending tasks in one go 
-**/
-void Server::scheduleTasks(void)
-{
-	//poll a task
-	Task * task = this->workerManager->pollFinishedTask(false);
-
-	//while we have tasks to poll
-	while (task != NULL) {
-		//cast
-		TaskIO * ioTask = dynamic_cast<TaskIO*>(task);
-
-		//call end operation
-		ioTask->runPostAction();
-
-		//look for schedule
-		TaskVecor toStart;
-		taskScheduler.popFinishedTask(toStart, ioTask);
-
-		//schedule all
-		for (auto & it : toStart)
-			this->workerManager->pushTask(it);
-
-		//poll again
-		task = this->workerManager->pollFinishedTask(false);
-	}
-}
-
-/****************************************************/
 /**
  * Polling function. it polls until this->pollRunning become false.
 **/
@@ -250,7 +229,7 @@ void Server::poll(void)
 		this->connection->poll(false);
 
 		//look on the tasks to be finished
-		this->scheduleTasks();
+		this->taskRunner->schedule();
 	}
 
 	//restart as running to wakeup the wait loop in stop()

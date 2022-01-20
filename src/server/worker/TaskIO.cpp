@@ -18,7 +18,6 @@ TaskIO::TaskIO(TaksIOType ioType, const IORanges & ioRanges)
        :ioRanges(ioRanges)
 {
 	//check
-	assert(ioRanges.ready());
 	assert(ioType == IO_TYPE_READ || ioType == IO_TYPE_WRITE);
 
 	//init

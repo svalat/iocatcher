@@ -18,17 +18,15 @@ using namespace IOC;
  * Constructor of the flush hook.
  * @param container The container to be able to access objects to flush.
 **/
-HookFlush::HookFlush(Container * container, TaskScheduler * taskScheduler, WorkerManager * workflowManager)
+HookFlush::HookFlush(Container * container, TaskRunner * taskRunner)
 {
 	//check
 	assert(container != NULL);
-	assert(taskScheduler != NULL);
-	assert(workflowManager != NULL);
+	assert(taskRunner != NULL);
 
 	//set
 	this->container = container;
-	this->taskScheduler = taskScheduler;
-	this->workerManager = workflowManager;
+	this->taskRunner = taskRunner;
 }
 
 /****************************************************/
@@ -51,8 +49,7 @@ LibfabricActionResult HookFlush::onMessage(LibfabricConnection * connection, Lib
 
 	//build task to delegate to a worker thread
 	TaskIO * task = new TaskObjectFlush(connection, request, ops);
-	if (this->taskScheduler->pushTask(task))
-		this->workerManager->pushTask(task);
+	this->taskRunner->pushTask(task);
 
 	//ok
 	return LF_WAIT_LOOP_KEEP_WAITING;

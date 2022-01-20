@@ -22,7 +22,7 @@ namespace IOC
 class Task
 {
 	public:
-		Task(void) {};
+		Task(void) {this->immediate = false;};
 		virtual ~Task(void) {};
 		/** Perform the given action in the worker thread. */
 		virtual void runAction(void) = 0;
@@ -33,6 +33,13 @@ class Task
 		virtual void runPostAction(void) = 0;
 		/** Perform both actions in one go. **/
 		void performBoth(void) {this->runAction(); this->runPostAction();};
+		/** Tell to the worker manager to run the task immediatly. **/
+		bool isImmediate(void) const {return this->immediate;};
+		/** Mark as immediate. **/
+		void maskAsImmediate(void) {this->immediate = true;};
+	private:
+		/** Define if the task need to be runned immediately of not. **/
+		bool immediate;
 };
 
 }

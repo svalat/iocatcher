@@ -56,7 +56,7 @@ void WorkerManager::pushTask(Task * task)
 	assert(task != WORKER_EXIT_TASK);
 
 	//check if has worker
-	if (this->workers.empty()) {
+	if (this->workers.empty() || task->isImmediate()) {
 		//if not worker we execute immediately
 		task->runAction();
 		this->tasksOut.push(task);
