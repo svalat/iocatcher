@@ -95,7 +95,7 @@ ssize_t DeferredOperation::run(void)
 }
 
 /****************************************************/
-IORange DeferredOperation::buildIORange(void)
+IORange DeferredOperation::buildMemRange(void)
 {
 	//check
 	assert(this->buffer != NULL);
@@ -117,10 +117,10 @@ ssize_t DeferredOperationList::runAll(void)
 
 
 /****************************************************/
-IORanges DeferredOperationList::buildIORanges(void)
+IORanges DeferredOperationList::buildMemRanges(void)
 {
 	IORanges ranges(this->size());
 	for (auto & op : *this)
-		ranges.push(op.buildIORange());
+		ranges.push(op.buildMemRange());
 	return ranges;
 }

@@ -44,7 +44,7 @@ class DeferredOperation
 		void setDitryAction(DeferredDirtyAction action);
 		ssize_t run(void);
 		size_t getSize(void) const {return this->size;};
-		IORange buildIORange(void);
+		IORange buildMemRange(void);
 	private:
 		DeferredOperationType type;
 		void * buffer;
@@ -61,7 +61,7 @@ class DeferredOperationList : public std::vector<DeferredOperation>
 {
 	public:
 		ssize_t runAll(void);
-		IORanges buildIORanges(void);
+		IORanges buildMemRanges(void);
 };
 
 }
