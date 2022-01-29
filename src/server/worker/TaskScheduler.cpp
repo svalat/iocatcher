@@ -7,6 +7,7 @@
 
 /****************************************************/
 #include <cassert>
+#include <algorithm>
 #include "base/common/Debug.hpp"
 #include "TaskScheduler.hpp"
 
@@ -27,6 +28,18 @@ bool TaskScheduler::pushTask(TaskIO * task)
 
 	//add to the list
 	this->tasks.push_back(task);
+
+	//check if can schedule
+	return this->canSchedule(task);
+}
+
+/****************************************************/
+bool TaskScheduler::canSchedulePreparedTask(TaskIO * task)
+{
+	//check
+	assert(task != NULL);
+	assert(task->getStage() == STAGE_ACTION);
+	assert(std::find(this->tasks.begin(), this->tasks.end(), task) != this->tasks.end());
 
 	//check if can schedule
 	return this->canSchedule(task);

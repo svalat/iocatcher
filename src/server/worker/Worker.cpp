@@ -42,7 +42,7 @@ Worker::Worker(WorkerTaskQueue * inQueue, WorkerTaskQueue * outQueue, LibfabricC
 				return;
 
 			//run it
-			task->runAction();
+			task->runNextStage(STAGE_ACTION);
 
 			//push it to the out queue
 			outQueue->push(task);

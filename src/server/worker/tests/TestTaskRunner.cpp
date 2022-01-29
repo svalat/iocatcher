@@ -20,8 +20,10 @@ static int gblDone = 0;
 class TaskIODummy : public TaskIO
 {
 	public:
-		TaskIODummy(TaksIOType ioType, const IORange & ioRange):TaskIO(ioType, ioRange) {this->ranAc = this->ranPost = false;};
+		TaskIODummy(TaksIOType ioType, const ObjectRange & objRange):TaskIO(ioType, objRange) {this->ranAc = this->ranPost = false;};
 		~TaskIODummy(void) {EXPECT_TRUE(this->ranAc); EXPECT_TRUE(this->ranPost); gblDone++;};
+	private:
+		virtual void runPrepare(void) override {};
 		virtual void runAction(void) override {this->ranAc = true;};
 		virtual void runPostAction(void) override {this->ranPost = true;};
 	private:
@@ -48,7 +50,7 @@ TEST(TestTaskRunner, run_many)
 	//push a task
 	//we build 3 READ then 1 WRITE for force a "complex" scheduling
 	for (int i = 0 ; i < cnt ; i++ )
-		runner.pushTask(new TaskIODummy((i%4 == 0)?IO_TYPE_WRITE:IO_TYPE_READ, IORange(0,100)));
+		runner.pushTask(new TaskIODummy((i%4 == 0)?IO_TYPE_WRITE:IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0,100)));
 
 	//wait all to be done
 	runner.waitAllFinished();

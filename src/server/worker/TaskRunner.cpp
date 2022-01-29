@@ -36,6 +36,31 @@ void TaskRunner::pushTask(TaskIO * task)
 	//check if can run the task or register it into the scheduler
 	//if OK, send it to the worker manager to run it
 	if (this->taskScheduler.pushTask(task))
+		this->runPrepareAndSchedule(task);
+}
+
+/****************************************************/
+void TaskRunner::runPrepareAndSchedule(TaskIO * task)
+{
+	//check
+	assert(task != NULL);
+
+	//ready state
+	bool ready = true;
+
+	//check if prepare stage need to be done
+	if (task->getStage() == STAGE_PREPARE) {
+		//run prepare
+		task->runNextStage(STAGE_PREPARE);
+
+		//check again schedulability
+		//Remark, this is required is we collide on addresse ranges
+		//which should append only if we play with COW
+		ready = this->taskScheduler.canSchedulePreparedTask(task);
+	}
+
+	//send it to workers
+	if (ready)
 		this->workerManager.pushTask(task);
 }
 
@@ -59,15 +84,17 @@ int TaskRunner::schedule(void)
 		TaskIO * ioTask = dynamic_cast<TaskIO*>(task);
 
 		//call end operation
-		ioTask->runPostAction();
+		bool finished = ioTask->runNextStage(STAGE_POST);
+		assert(finished);
 
 		//look for schedule
 		TaskVecor toStart;
 		taskScheduler.popFinishedTask(toStart, ioTask);
 
 		//schedule all
-		for (auto & it : toStart)
-			this->workerManager.pushTask(it);
+		for (auto & it : toStart) {
+			this->runPrepareAndSchedule(it);
+		}
 
 		//delete the task & decrement
 		delete task;

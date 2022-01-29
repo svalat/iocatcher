@@ -58,7 +58,7 @@ void WorkerManager::pushTask(Task * task)
 	//check if has worker
 	if (this->workers.empty() || task->isImmediate()) {
 		//if not worker we execute immediately
-		task->runAction();
+		task->runNextStage(STAGE_ACTION);
 		this->tasksOut.push(task);
 		//wake up the connection polling function if passive
 		if (this->connection != NULL)

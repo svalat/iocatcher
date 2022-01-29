@@ -42,7 +42,7 @@ enum TaksIOType
 class TaskIO : public Task
 {
 	public:
-		TaskIO(TaksIOType ioType,const IORanges & memRanges);
+		TaskIO(TaksIOType ioType, const ObjectRange & objectRange);
 		TaskIO(TaksIOType ioType, const ObjectRange & objectRange, const IORanges & memRanges);
 		virtual ~TaskIO(void) {};
 		bool isActive(void) const;

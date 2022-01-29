@@ -51,7 +51,7 @@ LibfabricActionResult HookFlush::onMessage(LibfabricConnection * connection, Lib
 	ObjectRange objectRange(object.getObjectId(), 0, SIZE_MAX);
 
 	//build task to delegate to a worker thread
-	TaskIO * task = new TaskObjectFlush(connection, request, objectRange, ops);
+	TaskIO * task = new TaskObjectFlush(connection, request, this->container, objFlush);
 	this->taskRunner->pushTask(task);
 
 	//ok

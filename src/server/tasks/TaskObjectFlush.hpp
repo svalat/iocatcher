@@ -11,6 +11,7 @@
 #include "../../base/network/LibfabricConnection.hpp"
 #include "../core/DeferredOperation.hpp"
 #include "TaskDeferredOps.hpp"
+#include "../core/Container.hpp"
 
 /****************************************************/
 namespace IOC
@@ -23,11 +24,15 @@ namespace IOC
 class TaskObjectFlush : public TaskDeferredOps
 {
 	public:
-		TaskObjectFlush(LibfabricConnection * connection, LibfabricClientRequest & request, const ObjectRange & objectRange, DeferredOperationList & ops);
+		TaskObjectFlush(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, LibfabricObjFlushInfos flushInfos);
+	protected:
 		virtual void runPostAction(void) override;
+		virtual void runPrepare(void) override;
 	private:
 		LibfabricConnection * connection;
 		LibfabricClientRequest request;
+		Container * container;
+		LibfabricObjFlushInfos flushInfos;
 };
 
 }

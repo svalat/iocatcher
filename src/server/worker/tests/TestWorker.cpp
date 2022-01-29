@@ -17,6 +17,7 @@ using namespace testing;
 class TestWorkerTask : public Task {
 	public:
 		TestWorkerTask(void) {this->ran = false;};
+		virtual void runPrepare(void) override {};
 		virtual void runAction(void) override {this->ran = true;};
 		virtual void runPostAction(void) override {};
 		bool ran;

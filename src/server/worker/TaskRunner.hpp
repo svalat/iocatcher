@@ -30,6 +30,8 @@ class TaskRunner
 		int schedule(void);
 		void waitAllFinished(void);
 	private:
+		void runPrepareAndSchedule(TaskIO * task);
+	private:
 		TaskScheduler taskScheduler;
 		WorkerManager workerManager;
 		int pendingTasks;

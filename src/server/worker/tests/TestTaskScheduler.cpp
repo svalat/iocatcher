@@ -17,7 +17,8 @@ using namespace testing;
 class TaskIODummy : public TaskIO
 {
 	public:
-		TaskIODummy(TaksIOType ioType, const IORange & ioRange):TaskIO(ioType, ioRange) {};
+		TaskIODummy(TaksIOType ioType, const ObjectRange & objRange):TaskIO(ioType, objRange) {};
+		virtual void runPrepare(void) override {};
 		virtual void runAction(void) override {};
 		virtual void runPostAction(void) override {};
 };
@@ -36,7 +37,7 @@ TEST(TestTaskScheduler, pushTask_single)
 	TaskScheduler sched;
 
 	//build a task
-	TaskIODummy taskRead(IO_TYPE_READ, IORange(0,100));
+	TaskIODummy taskRead(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0, 100));
 
 	//schedule it
 	bool canSchedule = sched.pushTask(&taskRead);
@@ -57,8 +58,8 @@ TEST(TestTaskScheduler, pushTask_two_parallel_no_collide)
 	TaskScheduler sched;
 
 	//build a task
-	TaskIODummy taskRead1(IO_TYPE_WRITE, IORange(0,100));
-	TaskIODummy taskRead2(IO_TYPE_WRITE, IORange(100,100));
+	TaskIODummy taskRead1(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 0, 100));
+	TaskIODummy taskRead2(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 100, 100));
 
 	//schedule first
 	bool canSchedule1 = sched.pushTask(&taskRead1);
@@ -87,8 +88,8 @@ TEST(TestTaskScheduler, pushTask_two_parallel)
 	TaskScheduler sched;
 
 	//build a task
-	TaskIODummy taskRead1(IO_TYPE_READ, IORange(0,100));
-	TaskIODummy taskRead2(IO_TYPE_READ, IORange(50,100));
+	TaskIODummy taskRead1(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0, 100));
+	TaskIODummy taskRead2(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 50, 100));
 
 	//schedule first
 	bool canSchedule1 = sched.pushTask(&taskRead1);
@@ -117,8 +118,8 @@ TEST(TestTaskScheduler, pushTask_two_no_parallel)
 	TaskScheduler sched;
 
 	//build a task
-	TaskIODummy taskWrite1(IO_TYPE_WRITE, IORange(0,100));
-	TaskIODummy taskRead2(IO_TYPE_READ, IORange(50,100));
+	TaskIODummy taskWrite1(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 0, 100));
+	TaskIODummy taskRead2(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 50, 100));
 
 	//schedule first
 	bool canSchedule1 = sched.pushTask(&taskWrite1);
@@ -155,9 +156,9 @@ TEST(TestTaskScheduler, pushTask_three_no_parallel_all_deps)
 	TaskScheduler sched;
 
 	//build a task
-	TaskIODummy taskWrite1(IO_TYPE_WRITE, IORange(0,100));
-	TaskIODummy taskWrite2(IO_TYPE_WRITE, IORange(50,100));
-	TaskIODummy taskRead3(IO_TYPE_READ, IORange(50,100));
+	TaskIODummy taskWrite1(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 0, 100));
+	TaskIODummy taskWrite2(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 50, 100));
+	TaskIODummy taskRead3(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 50, 100));
 
 	//schedule first
 	bool canSchedule1 = sched.pushTask(&taskWrite1);
@@ -209,9 +210,9 @@ TEST(TestTaskScheduler, pushTask_three_two_parallel)
 	TaskScheduler sched;
 
 	//build a task
-	TaskIODummy taskWrite1(IO_TYPE_WRITE, IORange(0,100));
-	TaskIODummy taskRead2(IO_TYPE_READ, IORange(50,100));
-	TaskIODummy taskRead3(IO_TYPE_READ, IORange(50,100));
+	TaskIODummy taskWrite1(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 0, 100));
+	TaskIODummy taskRead2(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 50, 100));
+	TaskIODummy taskRead3(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 50, 100));
 
 	//schedule first
 	bool canSchedule1 = sched.pushTask(&taskWrite1);
