@@ -23,7 +23,7 @@ namespace IOC
 class TaskDeferredOps : public TaskIO
 {
 	public:
-		TaskDeferredOps(TaksIOType ioType, DeferredOperationList & ops);
+		TaskDeferredOps(TaksIOType ioType, const ObjectRange & objectRange, DeferredOperationList & ops);
 		virtual void runAction(void) override;
 		virtual void runPostAction(void) override;
 	protected:

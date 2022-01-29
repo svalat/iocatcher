@@ -23,7 +23,7 @@ namespace IOC
 class TaskObjectFlush : public TaskDeferredOps
 {
 	public:
-		TaskObjectFlush(LibfabricConnection * connection, LibfabricClientRequest & request, DeferredOperationList & ops);
+		TaskObjectFlush(LibfabricConnection * connection, LibfabricClientRequest & request, const ObjectRange & objectRange, DeferredOperationList & ops);
 		virtual void runPostAction(void) override;
 	private:
 		LibfabricConnection * connection;

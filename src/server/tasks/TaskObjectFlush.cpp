@@ -13,8 +13,8 @@
 using namespace IOC;
 
 /****************************************************/
-TaskObjectFlush::TaskObjectFlush(LibfabricConnection * connection, LibfabricClientRequest & request, DeferredOperationList & ops)
-                :TaskDeferredOps(IO_TYPE_READ, ops)
+TaskObjectFlush::TaskObjectFlush(LibfabricConnection * connection, LibfabricClientRequest & request, const ObjectRange & objectRange, DeferredOperationList & ops)
+                :TaskDeferredOps(IO_TYPE_READ, objectRange, ops)
                 ,request(request)
 {
 	//check

@@ -14,8 +14,8 @@
 using namespace IOC;
 
 /****************************************************/
-TaskDeferredOps::TaskDeferredOps(TaksIOType ioType, DeferredOperationList & ops)
-                :TaskIO(ioType, ops.buildIORanges())
+TaskDeferredOps::TaskDeferredOps(TaksIOType ioType, const ObjectRange & objectRange, DeferredOperationList & ops)
+                :TaskIO(ioType, objectRange, ops.buildIORanges())
                 ,ops(std::move(ops))
 {
 	//determine if immediate

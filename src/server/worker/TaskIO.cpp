@@ -14,8 +14,23 @@
 using namespace IOC;
 
 /****************************************************/
-TaskIO::TaskIO(TaksIOType ioType, const IORanges & ioRanges)
-       :ioRanges(ioRanges)
+TaskIO::TaskIO(TaksIOType ioType, const IORanges & memRanges)
+       :memRanges(memRanges)
+       ,objectRanges(0)
+{
+	//check
+	assert(ioType == IO_TYPE_READ || ioType == IO_TYPE_WRITE);
+
+	//init
+	this->ioType = ioType;
+	this->active = false;
+	this->blockingDependencies = 0;
+}
+
+/****************************************************/
+TaskIO::TaskIO(TaksIOType ioType, const ObjectRange & objectRange, const IORanges & memRanges)
+       :memRanges(memRanges)
+       ,objectRanges(objectRange)
 {
 	//check
 	assert(ioType == IO_TYPE_READ || ioType == IO_TYPE_WRITE);

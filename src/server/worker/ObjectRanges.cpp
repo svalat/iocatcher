@@ -18,6 +18,10 @@ ObjectRange::ObjectRange(void)
 }
 
 /****************************************************/
+/**
+ * @todo Make an optimization when count = 1 to have a local storage to avoid
+ * the allocation.
+**/
 ObjectRanges::ObjectRanges(size_t count)
 {
 	//allocate

@@ -47,8 +47,11 @@ LibfabricActionResult HookFlush::onMessage(LibfabricConnection * connection, Lib
 	DeferredOperationList ops;
 	object.flush(ops, objFlush.offset, objFlush.size);
 
+	//build op range
+	ObjectRange objectRange(object.getObjectId(), 0, SIZE_MAX);
+
 	//build task to delegate to a worker thread
-	TaskIO * task = new TaskObjectFlush(connection, request, ops);
+	TaskIO * task = new TaskObjectFlush(connection, request, objectRange, ops);
 	this->taskRunner->pushTask(task);
 
 	//ok

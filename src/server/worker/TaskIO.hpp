@@ -13,6 +13,7 @@
 #include <deque>
 #include "Task.hpp"
 #include "IORanges.hpp"
+#include "ObjectRanges.hpp"
 
 /****************************************************/
 namespace IOC
@@ -41,15 +42,16 @@ enum TaksIOType
 class TaskIO : public Task
 {
 	public:
-		TaskIO(TaksIOType ioType, const IORanges & ioRanges);
+		TaskIO(TaksIOType ioType,const IORanges & memRanges);
+		TaskIO(TaksIOType ioType, const ObjectRange & objectRange, const IORanges & memRanges);
 		virtual ~TaskIO(void) {};
 		bool isActive(void) const;
 		void activate(void);
 		void registerToUnblock(TaskIO * task);
 		std::deque<TaskIO*> & getBlockedTasks(void);
 		bool canRunInParallel(const TaskIO * task) const;
-		bool collide(const TaskIO * task) const {return this->ioRanges.collide(task->ioRanges);};
-		bool isBlocked(void) const {return this->blockingDependencies > 0;};
+		inline bool collide(const TaskIO * task) const;
+		inline bool isBlocked(void) const;
 		bool unblock(void);
 	private:
 		static inline bool oneIs(const TaskIO * task1, const TaskIO * task2, TaksIOType type);
@@ -64,7 +66,9 @@ class TaskIO : public Task
 		 * between multiple objects. We can optimize and use a single range with object ID
 		 * if we remove the copy-on-write feature.
 		**/
-		IORanges ioRanges;
+		IORanges memRanges;
+		/** Protect the listed ranges in objects. **/
+		ObjectRanges objectRanges;
 		/** Count blocking dependencies to know when we can start the task. **/
 		int blockingDependencies;
 		/** Define the type of IO. **/
@@ -72,6 +76,18 @@ class TaskIO : public Task
 		/** Is in active list. **/
 		bool active;
 };
+
+/****************************************************/
+bool TaskIO::collide(const TaskIO * task) const
+{
+	return this->objectRanges.collide(task->objectRanges) || this->memRanges.collide(task->memRanges);
+};
+
+/****************************************************/
+bool TaskIO::isBlocked(void) const
+{
+	return this->blockingDependencies > 0;
+}
 
 }
 

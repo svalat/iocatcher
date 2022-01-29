@@ -105,7 +105,6 @@ IORange DeferredOperation::buildIORange(void)
 	return IORange((size_t)this->buffer, this->size);
 }
 
-
 /****************************************************/
 ssize_t DeferredOperationList::runAll(void)
 {
