@@ -20,7 +20,7 @@ TaskDeferredOps::TaskDeferredOps(TaksIOType ioType, DeferredOperationList & ops)
 {
 	//determine if immediate
 	if (ops.size() == 0)
-		this->maskAsImmediate();
+		this->markAsImmediate();
 }
 
 /****************************************************/

@@ -36,7 +36,7 @@ class Task
 		/** Tell to the worker manager to run the task immediatly. **/
 		bool isImmediate(void) const {return this->immediate;};
 		/** Mark as immediate. **/
-		void maskAsImmediate(void) {this->immediate = true;};
+		void markAsImmediate(void) {this->immediate = true;};
 	private:
 		/** Define if the task need to be runned immediately of not. **/
 		bool immediate;

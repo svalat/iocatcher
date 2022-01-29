@@ -262,6 +262,7 @@ void Object::flush(DeferredOperationList & deferredOps, size_t offset, size_t si
 		if (it.second.isDirty()) {
 			if (size == 0 || it.second.overlap(offset, size)) {
 				op.setObjectInfos(this, this->storageBackend, &it.second);
+				/** @todo: Can be optimized by keeping only the overlapping part, not the full one. **/
 				op.setData(it.second.getBuffer(), it.second.getSize(), it.second.getOffset());
 				deferredOps.push_back(op);
 			}
