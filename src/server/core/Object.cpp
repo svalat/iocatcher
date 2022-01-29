@@ -650,3 +650,9 @@ ObjectSegment * Object::getObjectSegment(size_t offset)
 	//not found
 	return NULL;
 }
+
+/****************************************************/
+bool IOC::operator==(const ObjectId & objId1, const ObjectId & objId2)
+{
+	return objId1.low == objId2.low && objId1.high == objId2.high;
+}

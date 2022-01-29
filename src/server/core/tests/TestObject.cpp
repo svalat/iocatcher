@@ -15,6 +15,19 @@ using namespace IOC;
 using namespace testing;
 
 /****************************************************/
+TEST(TestObjectId, operator_equal)
+{
+	ObjectId objectId1(10, 20);
+	ObjectId objectId2(10, 20);
+	ObjectId objectId3(10, 21);
+	ObjectId objectId4(11, 20);
+
+	EXPECT_TRUE(objectId1 == objectId2);
+	EXPECT_FALSE(objectId1 == objectId3);
+	EXPECT_FALSE(objectId1 == objectId4);
+}
+
+/****************************************************/
 TEST(TestObject, getBuffers_1)
 {
 	MemoryBackendMalloc mback(NULL);
