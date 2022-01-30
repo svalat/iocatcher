@@ -9,6 +9,7 @@
 #define IOC_TASK_HPP
 
 /****************************************************/
+#include <cassert>
 #include "base/common/Debug.hpp"
 
 /****************************************************/
@@ -35,7 +36,7 @@ class Task
 {
 	public:
 		Task(void) {this->immediate = false; this->nextStage = STAGE_PREPARE;};
-		virtual ~Task(void) {};
+		virtual ~Task(void) {assert(this->nextStage == STAGE_FINISHED || this->nextStage == STAGE_PREPARE);};
 		/** Run next stage. **/
 		inline bool runNextStage(void);
 		/** Run next stage. **/

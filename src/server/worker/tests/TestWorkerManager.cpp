@@ -17,7 +17,8 @@ using namespace testing;
 /****************************************************/
 class TestWorkerManagerTask : public Task {
 	public:
-		TestWorkerManagerTask(void) {this->ran = false;};
+		TestWorkerManagerTask(void) {this->ran = false;this->runNextStage(STAGE_PREPARE);};
+		~TestWorkerManagerTask(void) {this->runNextStage(STAGE_POST);};
 		virtual void runPrepare(void) override {};
 		virtual void runAction(void) override {this->ran = true;};
 		virtual void runPostAction(void) override {};
@@ -66,7 +67,6 @@ TEST(TestWorkerManager, run_many)
 {
 	//vars
 	WorkerManager wmanager(8);
-	TestWorkerManagerTask task;
 	const int cnt = 1000;
 
 	//push a task

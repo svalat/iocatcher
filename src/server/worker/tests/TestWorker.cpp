@@ -42,11 +42,13 @@ TEST(TestWorker, run_task)
 
 	//push task
 	TestWorkerTask task;
+	task.runNextStage(STAGE_PREPARE);
 	in.push(&task);
 
 	//active wait
 	Task * done = NULL;
 	do { done = out.pop(); } while (done == NULL);
+	done->runNextStage(STAGE_POST);
 
 	//check
 	EXPECT_EQ(&task, done);
