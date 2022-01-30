@@ -45,6 +45,5 @@ void TaskObjectFlush::runPrepare(void)
 {
 	//flush object
 	Object & object = this->container->getObject(this->flushInfos.objectId);
-	DeferredOperationList ops;
-	object.flush(ops, this->flushInfos.offset, this->flushInfos.size);
+	object.flush(this->ops, this->flushInfos.offset, this->flushInfos.size);
 }
