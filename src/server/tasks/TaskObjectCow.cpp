@@ -39,6 +39,9 @@ TaskObjectCow::TaskObjectCow(LibfabricConnection * connection, LibfabricClientRe
 	this->connection = connection;
 	this->container = container;
 	this->res = -1;
+
+	//mark as immediate task to run in the core thread
+	this->markAsImmediate();
 }
 
 /****************************************************/
