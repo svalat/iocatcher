@@ -1,9 +1,7 @@
 ######################################################
-#            PROJECT  : IO Catcher                   #
-#            VERSION  : 0.0.0                        #
-#            DATE     : 10/2020                      #
-#            AUTHOR   : Valat Sébastien  - ATOS      #
-#            LICENSE  : ????????                     #
+#  PROJECT  : IO Catcher                             #
+#  LICENSE  : Apache 2.0                             #
+#  COPYRIGHT: 2022 Sebastien Valat                   #
 ######################################################
 
 ######################################################

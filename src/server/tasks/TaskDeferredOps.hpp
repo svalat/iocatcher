@@ -1,7 +1,7 @@
 /*****************************************************
 *  PROJECT  : IO Catcher                             *
 *  LICENSE  : Apache 2.0                             *
-*  COPYRIGHT: 2020-2022 Bull SAS All rights reserved *
+*  COPYRIGHT: 2022 Sebastien Valat                   *
 *****************************************************/
 
 #ifndef IOC_TASK_DEFERRED_OPS_HPP

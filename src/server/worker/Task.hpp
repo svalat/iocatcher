@@ -1,10 +1,8 @@
 /*****************************************************
-			PROJECT  : IO Catcher
-			VERSION  : 0.0.0-dev
-			DATE     : 10/2020
-			LICENSE  : ????????
+*  PROJECT  : IO Catcher                             *
+*  LICENSE  : Apache 2.0                             *
+*  COPYRIGHT: 2022 Sebastien Valat                   *
 *****************************************************/
-
 #ifndef IOC_TASK_HPP
 #define IOC_TASK_HPP
 
