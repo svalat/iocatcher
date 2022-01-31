@@ -60,6 +60,7 @@ void TaskObjectCow::runPrepare(void)
 
 	//build final
 	IORanges ranges(srcRanges.getCursor() + destRanges.getCursor());
+	this->setMemRanges(std::move(ranges));
 }
 
 /****************************************************/
