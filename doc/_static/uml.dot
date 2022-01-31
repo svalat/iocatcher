@@ -192,6 +192,71 @@ digraph IOCATCHER
 		]
 	}
 
+	subgraph cluster_tasks {
+		label = "Worker tasks"
+
+		TaskIOHub [
+			label = "TaskIOHub"
+			shape = ellipse
+		]
+
+		TaskDeferredOps [
+			label = "{TaskDeferredOps|\l|\l}"
+		]
+
+		TaskObjectCow [
+			label = "{TaskObjectCow|\l|\l}"
+		]
+
+		TaskObjectFlush [
+			label = "{TaskObjectFlush|\l|\l}"
+		]
+	}
+
+	subgraph cluster_worker {
+		label = "Worker implementation"
+
+		IORange [
+			label = "{IORange|\l|\l}"
+		]
+
+		IORanges [
+			label = "{IORanges|\l|\l}"
+		]
+
+		ObjectRange [
+			label = "{ObjectRange|\l|\l}"
+		]
+
+		ObjectRanges [
+			label = "{ObjectRanges|\l|\l}"
+		]
+
+		Task [
+			label = "{Task|\l|\l}"
+		]
+
+		TaskIO [
+			label = "{TaskIO|\l|\l}"
+		]
+
+		TaskRunner [
+			label = "{TaskRunner|\l|\l}"
+		]
+
+		TaskScheduler [
+			label = "{TaskScheduler|\l|\l}"
+		]
+
+		Worker [
+			label = "{Worker|\l|\l}"
+		]
+
+		WorkerManager [
+			label = "{WorkerManager|\l|\l}"
+		]
+	}
+
 	//inheritance links
 	ServerHook -> HookFlush
 	ServerHook -> HookObjectCow
@@ -207,6 +272,11 @@ digraph IOCATCHER
 	MemoryBackend -> MemoryBackendNvdimm
 	MemoryBackend -> MemoryBackendCache
 	MemoryBackend -> MemoryBackendRoundRobin
+	TaskIOHub -> TaskDeferredOps
+	TaskIOHub -> TaskObjectCow
+	TaskIOHub -> TaskObjectFlush
+	TaskIO -> TaskIOHub
+	Task -> TaskIO
 
 	//composition
 	LibfabricHandler -> LibfabricDomain[arrowtail=diamond]
@@ -217,6 +287,7 @@ digraph IOCATCHER
 	Server -> LibfabricHandler[arrowtail=diamond]
 	Server -> ServerStats[arrowtail=diamond]
 	Server -> Backends[arrowtail=diamond]
+	Server -> TaskRunner[arrowtail=diamond]
 	Backends -> StorageBackend[arrowtail=diamond]
 	Backends -> MemoryBackend[arrowtail=diamond]
 	LibfabricConnection -> ClientRegistry[arrowtail=diamond]
@@ -236,10 +307,23 @@ digraph IOCATCHER
 	ioc_client_t -> LibfabricDomain[arrowtail=diamond]
 	ioc_client_t -> LibfabricConnection[arrowtail=diamond]
 	HookFlush -> Container[arrowtail=odiamond]
+	HookFlush -> TaskObjectFlush[arrowtail=odiamond]
 	HookObjectCreate -> Container[arrowtail=odiamond]
 	HookObjectCow -> Container[arrowtail=odiamond]
+	HookObjectCow -> TaskObjectCow[arrowtail=odiamond]
 	HookObjectRead -> Container[arrowtail=odiamond]
 	HookObjectWrite -> Container[arrowtail=odiamond]
 	HookObjectRead -> ServerStats[arrowtail=odiamond]
 	HookObjectWrite -> ServerStats[arrowtail=odiamond]
+	IORanges -> IORange[arrowtail=diamond]
+	ObjectRange -> ObjectId[arrowtail=diamond]
+	ObjectRange -> IORanges[arrowtail=diamond]
+	ObjectRanges -> ObjectRange[arrowtail=diamond]
+	WorkerManager -> Worker[arrowtail=diamond]
+	TaskScheduler -> TaskIO[arrowtail=diamond]
+	TaskRunner -> WorkerManager[arrowtail=diamond]
+	TaskRunner -> TaskScheduler[arrowtail=diamond]
+	Worker -> Task[arrowtail=diamond]
+	TaskIO -> IORanges[arrowtail=diamond]
+	TaskIO -> ObjectRanges[arrowtail=diamond]
 }
