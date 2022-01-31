@@ -162,3 +162,10 @@ bool ObjectSegment::isCow(void)
 {
 	return !memory.unique();
 }
+
+/****************************************************/
+IORange ObjectSegment::getRange(void)
+{
+	IORange range(this->offset, this->getSize());
+	return range;
+}

@@ -90,6 +90,7 @@ class Object
 		void setStorageBackend(StorageBackend * storageBackend);
 		void setMemoryBackend(MemoryBackend * memoryBackend);
 		ObjectSegment * getObjectSegment(size_t offset);
+		IORanges getMemRanges(size_t offset, size_t size);
 	private:
 		void rangeCopyOnWriteSegment(ObjectSegment & origSegment, size_t offset, size_t size);
 		ObjectSegmentDescr loadSegment(size_t offset, size_t size, bool load = true, bool acceptLoadFail = false);

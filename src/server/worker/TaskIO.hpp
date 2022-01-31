@@ -42,6 +42,7 @@ enum TaksIOType
 class TaskIO : public Task
 {
 	public:
+		TaskIO(TaksIOType ioType, int objectRangesCount);
 		TaskIO(TaksIOType ioType, const ObjectRange & objectRange);
 		TaskIO(TaksIOType ioType, const ObjectRange & objectRange, const IORanges & memRanges);
 		virtual ~TaskIO(void) {};
@@ -53,6 +54,9 @@ class TaskIO : public Task
 		inline bool collide(const TaskIO * task) const;
 		inline bool isBlocked(void) const;
 		bool unblock(void);
+	protected:
+		void setMemRanges(IORanges && memRanges);
+		void pushObjectRange(const ObjectRange & objectRange);
 	private:
 		static inline bool oneIs(const TaskIO * task1, const TaskIO * task2, TaksIOType type);
 		static inline bool oneOrTheOtherIs(const TaskIO * task1, const TaskIO * task2, TaksIOType type1, TaksIOType type2);

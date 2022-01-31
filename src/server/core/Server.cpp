@@ -92,7 +92,7 @@ Server::Server(const Config * config, const std::string & port)
 	this->connection->registerHook(IOC_LF_MSG_OBJ_CREATE, new HookObjectCreate(this->container));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_READ, new HookObjectRead(this->container, &this->stats));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_WRITE, new HookObjectWrite(this->container, &this->stats));
-	this->connection->registerHook(IOC_LF_MSG_OBJ_COW, new HookObjectCow(this->container));
+	this->connection->registerHook(IOC_LF_MSG_OBJ_COW, new HookObjectCow(this->container, taskRunner));
 
 	//set error dispatch
 	if (config->broadcastErrorToClients) {

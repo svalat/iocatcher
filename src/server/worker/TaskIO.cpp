@@ -14,6 +14,20 @@
 using namespace IOC;
 
 /****************************************************/
+TaskIO::TaskIO(TaksIOType ioType, int objectRangesCount)
+       :memRanges(0)
+       ,objectRanges(objectRangesCount)
+{
+	//check
+	assert(ioType == IO_TYPE_READ || ioType == IO_TYPE_WRITE);
+
+	//init
+	this->ioType = ioType;
+	this->active = false;
+	this->blockingDependencies = 0;
+}
+
+/****************************************************/
 TaskIO::TaskIO(TaksIOType ioType, const ObjectRange & objectRange)
        :memRanges(0)
        ,objectRanges(objectRange)
@@ -124,4 +138,16 @@ bool TaskIO::unblock(void)
 
 	//return true if unblocked
 	return (this->blockingDependencies == 0);
+}
+
+/****************************************************/
+void TaskIO::setMemRanges(IORanges && memRanges)
+{
+	this->memRanges = std::move(memRanges);
+}
+
+/****************************************************/
+void TaskIO::pushObjectRange(const ObjectRange & objectRange)
+{
+	this->objectRanges.push(objectRange);
 }

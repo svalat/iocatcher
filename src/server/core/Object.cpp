@@ -656,3 +656,32 @@ bool IOC::operator==(const ObjectId & objId1, const ObjectId & objId2)
 {
 	return objId1.low == objId2.low && objId1.high == objId2.high;
 }
+
+/****************************************************/
+IORanges Object::getMemRanges(size_t offset, size_t size)
+{
+	//build selection range
+	IORange selectionRange(offset, size);
+
+	//count number of hits
+	size_t cnt = 0;
+	for (auto & it : this->segmentMap)
+		if (it.second.overlap(offset, size))
+			cnt++;
+	
+	//build ranges
+	IORanges ranges(cnt);
+
+	//fill it
+	for (auto & it : this->segmentMap) {
+		if (it.second.overlap(offset, size)) {
+			IORange range = it.second.getRange();
+			IORange intersect = IORange::intersect(selectionRange, range);
+			intersect.address += (size_t)it.second.getBuffer() - range.address;
+			ranges.push(intersect);
+		}
+	}
+
+	//ret
+	return ranges;
+}

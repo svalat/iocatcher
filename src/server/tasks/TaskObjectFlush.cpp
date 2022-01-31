@@ -43,7 +43,12 @@ void TaskObjectFlush::runPostAction(void)
 /****************************************************/
 void TaskObjectFlush::runPrepare(void)
 {
-	//flush object
+	//build flush operations
 	Object & object = this->container->getObject(this->flushInfos.objectId);
 	object.flush(this->ops, this->flushInfos.offset, this->flushInfos.size);
+
+	//build me ranges for dependency checking
+	//REMARK: we need to check the buffer addresses due to the COW support which might
+	//change them. If we remove COW this line can be removed.
+	this->setMemRanges(this->ops.buildMemRanges());
 }

@@ -109,8 +109,6 @@ ObjectRanges & ObjectRanges::push(const ObjectId & objectId, size_t address, siz
 ObjectRanges & ObjectRanges::push(const ObjectRange & objectRange)
 {
 	//check
-	assert(objectRange.range.address != 0);
-	assert(objectRange.range.size != 0);
 	assert(this->cursor < this->count);
 
 	//push

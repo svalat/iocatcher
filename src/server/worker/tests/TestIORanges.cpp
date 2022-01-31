@@ -47,6 +47,40 @@ TEST(TestIORange, collide)
 	EXPECT_TRUE(range_30_50.collide(range_35_60));
 }
 
+/*********************************************************/
+TEST(TestIORange, operator_equal)
+{
+	IORange range1(0, 100);
+	IORange range2(0, 100);
+	IORange range3(50, 100);
+	IORange range4(0, 50);
+
+	EXPECT_TRUE(range1 == range2);
+	EXPECT_FALSE(range1 == range3);
+	EXPECT_FALSE(range1 == range4);
+}
+
+/*********************************************************/
+TEST(TestIORange, intersect_left)
+{
+	IORange res = IORange::intersect(IORange(0,15), IORange(10, 10));
+	EXPECT_EQ(IORange(10, 5), res);
+}
+
+/*********************************************************/
+TEST(TestIORange, intersect_middle)
+{
+	IORange res = IORange::intersect(IORange(12,5), IORange(10, 10));
+	EXPECT_EQ(IORange(12, 5), res);
+}
+
+/*********************************************************/
+TEST(TestIORange, intersect_right)
+{
+	IORange res = IORange::intersect(IORange(15,20), IORange(10, 10));
+	EXPECT_EQ(IORange(15, 5), res);
+}
+
 /****************************************************/
 TEST(TestIORanges, constructor)
 {

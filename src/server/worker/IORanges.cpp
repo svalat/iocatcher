@@ -1,5 +1,5 @@
 /*****************************************************
-			PROJECT  : IO Catcher
+		PROJECT  : IO Catcher
 			VERSION  : 0.0.0-dev
 			DATE     : 10/2020
 			LICENSE  : ????????
@@ -82,6 +82,47 @@ IORanges::~IORanges(void)
 }
 
 /****************************************************/
+IORanges & IORanges::operator=(IORanges && orig)
+{
+	//clear
+	if (this->ranges != NULL)
+		delete [] this->ranges;
+
+	//move
+	this->ranges = orig.ranges;
+	this->cursor = orig.cursor;
+	this->count = orig.count;
+
+	//reset orig
+	orig.ranges = NULL;
+	orig.count = 0;
+	orig.cursor = 0;
+
+	//ret
+	return *this;
+}
+
+/****************************************************/
+IORanges & IORanges::operator=(IORanges & orig)
+{
+	//clear
+	if (this->ranges != NULL)
+		delete [] this->ranges;
+
+	//setup
+	this->ranges = new IORange[orig.count];
+	this->count = orig.count;
+	this->cursor = orig.cursor;
+
+	//copy
+	for (int i = 0 ; i < this->cursor ; i++)
+		this->ranges[i] = orig.ranges[i];
+
+	//ret
+	return *this;
+}
+
+/****************************************************/
 bool IORanges::ready(void) const
 {
 	return this->ranges != NULL && this->cursor == this->count && this->count > 0;
@@ -142,4 +183,31 @@ bool IORanges::collide(const IORanges & ranges) const
 
 	//no collision
 	return false;
+}
+
+/****************************************************/
+IORanges & IORanges::push(const IORanges & ranges)
+{
+	for (size_t i = 0 ; i < ranges.cursor ; i++)
+		this->push(ranges.ranges[i]);
+	return *this;
+}
+
+/****************************************************/
+size_t IORanges::getCursor(void) const
+{
+	return this->cursor;
+}
+
+/****************************************************/
+size_t IORanges::getCount(void) const
+{
+	return this->count;
+}
+
+/****************************************************/
+IORange & IORanges::operator[](size_t index)
+{
+	assert(index < this->cursor);
+	return this->ranges[index];
 }

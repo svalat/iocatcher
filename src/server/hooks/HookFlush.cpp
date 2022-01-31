@@ -42,14 +42,6 @@ LibfabricActionResult HookFlush::onMessage(LibfabricConnection * connection, Lib
 		.arg(request.lfClientId)
 		.end();
 
-	//flush object
-	Object & object = this->container->getObject(objFlush.objectId);
-	DeferredOperationList ops;
-	object.flush(ops, objFlush.offset, objFlush.size);
-
-	//build op range
-	ObjectRange objectRange(object.getObjectId(), 0, SIZE_MAX);
-
 	//build task to delegate to a worker thread
 	TaskIO * task = new TaskObjectFlush(connection, request, this->container, objFlush);
 	this->taskRunner->pushTask(task);
