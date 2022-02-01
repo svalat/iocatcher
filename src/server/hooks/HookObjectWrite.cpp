@@ -14,6 +14,7 @@
 #include "HookObjectWrite.hpp"
 #include "../core/Consts.hpp"
 #include "../tasks/TaskObjectWriteRdma.hpp"
+#include "../tasks/TaskObjectWriteEager.hpp"
 
 /****************************************************/
 using namespace IOC;
@@ -37,54 +38,6 @@ HookObjectWrite::HookObjectWrite(Container * container, ServerStats * stats, Tas
 }
 
 /****************************************************/
-/**
- * Pull data to the client getting an eager communication and copying it directly to the object segments.
- * to the client.
- * @param clientId the libfabric client ID to know the connection to be used.
- * @param clientMessage the request from the client to get the required informations.
- * @param segments The list of object segments to be sent.
-**/
-void HookObjectWrite::objEagerExtractFromMessage(LibfabricConnection * connection, uint64_t clientId, LibfabricObjReadWriteInfos & objReadWrite, ObjectSegmentList & segments)
-{
-	//get base pointer
-	const char * data = objReadWrite.optionalData;
-	assert(data != NULL);
-
-	//copy data
-	size_t cur = 0;
-	size_t dataSize = objReadWrite.size;
-	size_t baseOffset = objReadWrite.offset;
-	for (auto segment : segments) {
-		//compute copy size to stay in data limits
-		size_t copySize = segment.size;
-		size_t offset = 0;
-		if (baseOffset > segment.offset) {
-			offset = baseOffset - segment.offset;
-			copySize -= offset;
-		}
-		assert(copySize <= segment.size);
-		if (cur + copySize > dataSize) {
-			copySize = dataSize - cur;
-		}
-
-		//copy
-		assert(offset < segment.size);
-		assert(copySize <= segment.size);
-		assert(copySize <= segment.size - offset);
-		memcpy(segment.ptr + offset, data + cur, copySize);
-
-		//progress
-		cur += copySize;
-	}
-
-	//stats
-	this->stats->writeSize += cur;
-
-	//send response
-	connection->sendResponse(IOC_LF_MSG_OBJ_READ_WRITE_ACK, clientId, 0);
-}
-
-/****************************************************/
 LibfabricActionResult HookObjectWrite::onMessage(LibfabricConnection * connection, LibfabricClientRequest & request)
 {
 	//extract
@@ -99,28 +52,17 @@ LibfabricActionResult HookObjectWrite::onMessage(LibfabricConnection * connectio
 
 	//get buffers from object
 	if (objReadWrite.msgHasData) {
-		Object & object = this->container->getObject(objReadWrite.objectId);
-		ObjectSegmentList segments;
-		bool status = object.getBuffers(segments, objReadWrite.offset, objReadWrite.size, ACCESS_WRITE, true, true);
-
-		//eager or rdma
-		if (status) {
-			if (objReadWrite.msgHasData) {
-				objEagerExtractFromMessage(connection, request.lfClientId, objReadWrite, segments);
-			}
-		} else {
-			connection->sendResponse(IOC_LF_MSG_OBJ_READ_WRITE_ACK, request.lfClientId, 0);
-		}
-
-		//mark dirty
-		object.markDirty(objReadWrite.offset, objReadWrite.size);
+		//launch the task
+		TaskIO * task = new TaskObjectWriteEager(connection, request, container, stats, objReadWrite);
+		this->taskRunner->pushTask(task);
 	} else {
+		//launch the task
 		TaskIO * task = new TaskObjectWriteRdma(connection, request, container, stats, objReadWrite);
 		this->taskRunner->pushTask(task);
-	}
 
-	//republish
-	request.terminate();
+		//we do not need the request anymore (data via RDMA)
+		request.terminate();
+	}
 
 	return LF_WAIT_LOOP_KEEP_WAITING;
 }

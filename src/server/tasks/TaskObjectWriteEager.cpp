@@ -7,7 +7,7 @@
 /****************************************************/
 #include <cassert>
 #include <utility>
-#include "TaskObjectWriteRdma.hpp"
+#include "TaskObjectWriteEager.hpp"
 #include "base/network/Protocol.hpp"
 #include "../core/Consts.hpp"
 
@@ -18,7 +18,7 @@ using namespace IOC;
 /**
  * @todo optimisze not using SIZE_MAX if the flush range is smaller !
 **/
-TaskObjectWriteRdma::TaskObjectWriteRdma(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite)
+TaskObjectWriteEager::TaskObjectWriteEager(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite)
                 :TaskDeferredOps(IO_TYPE_WRITE, ObjectRange(objReadWrite.objectId, objReadWrite.offset, objReadWrite.size))
                 ,request(request)
                 ,objReadWrite(objReadWrite)
@@ -35,7 +35,7 @@ TaskObjectWriteRdma::TaskObjectWriteRdma(LibfabricConnection * connection, Libfa
 }
 
 /****************************************************/
-void TaskObjectWriteRdma::runPrepare(void)
+void TaskObjectWriteEager::runPrepare(void)
 {
 	//get buffers from object
 	Object & object = this->container->getObject(objReadWrite.objectId);
@@ -43,71 +43,71 @@ void TaskObjectWriteRdma::runPrepare(void)
 }
 
 /****************************************************/
-void TaskObjectWriteRdma::runPostAction(void)
+void TaskObjectWriteEager::runAction(void)
 {
+	//perform pread ops
+	TaskDeferredOps::runAction();
+
+	//make memcpys
+	this->performMemcpyOps();
+}
+
+/****************************************************/
+void TaskObjectWriteEager::runPostAction(void)
+{
+	//apply success or not
 	if (this->status && this->ret >= 0) {
-		this->setDetachedPost();
-		this->performRdmaOps();
+		//mark dirty
 		Object & object = this->container->getObject(objReadWrite.objectId);
 		object.markDirty(objReadWrite.offset, objReadWrite.size);
+
+		//send response
+		connection->sendResponse(IOC_LF_MSG_OBJ_READ_WRITE_ACK, request.lfClientId, 0);
 	} else {
 		connection->sendResponse(IOC_LF_MSG_OBJ_READ_WRITE_ACK, request.lfClientId, -1);
 	}
+
+	//can free the request
+	request.terminate();
 }
 
 /****************************************************/
 /**
  * @todo handle thread safety on stat increment
 **/
-void TaskObjectWriteRdma::performRdmaOps(void)
+void TaskObjectWriteEager::performMemcpyOps(void)
 {
-	//build iovec
-	iovec * iov = Object::buildIovec(segments, objReadWrite.offset, objReadWrite.size);
-	size_t size = objReadWrite.size;
+	//get base pointer
+	const char * data = objReadWrite.optionalData;
+	assert(data != NULL);
 
-	//count number of ops
-	int  * ops = new int;
-	*ops = 0;
-	for (size_t i = 0 ; i < segments.size() ; i += IOC_LF_MAX_RDMA_SEGS)
-		(*ops)++;
+	//copy data
+	size_t cur = 0;
+	size_t dataSize = objReadWrite.size;
+	size_t baseOffset = objReadWrite.offset;
+	for (auto segment : segments) {
+		//compute copy size to stay in data limits
+		size_t copySize = segment.size;
+		size_t offset = 0;
+		if (baseOffset > segment.offset) {
+			offset = baseOffset - segment.offset;
+			copySize -= offset;
+		}
+		assert(copySize <= segment.size);
+		if (cur + copySize > dataSize) {
+			copySize = dataSize - cur;
+		}
 
-	//loop on all send groups (because LF cannot send more than 256 at same time)
-	size_t offset = 0;
-	for (size_t i = 0 ; i < segments.size() ; i += IOC_LF_MAX_RDMA_SEGS) {
-		//calc cnt
-		size_t cnt = segments.size() - i;
-		if (cnt > IOC_LF_MAX_RDMA_SEGS)
-			cnt = IOC_LF_MAX_RDMA_SEGS;
+		//copy
+		assert(offset < segment.size);
+		assert(copySize <= segment.size);
+		assert(copySize <= segment.size - offset);
+		memcpy(segment.ptr + offset, data + cur, copySize);
 
-		//emit rdma write vec & implement callback
-		LibfabricAddr addr = objReadWrite.iov.addr + offset;
-		uint64_t key = objReadWrite.iov.key;
-		connection->rdmaReadv(request.lfClientId, iov + i, cnt, addr, key, [ops, size, this](void){
-			//decrement
-			(*ops)--;
-
-			if (*ops == 0) {
-				//stats
-				this->stats->writeSize += size;
-
-				//send response
-				this->connection->sendResponse(IOC_LF_MSG_OBJ_READ_WRITE_ACK, request.lfClientId, 0);
-
-				//clean
-				delete ops;
-
-				//make the task terminated
-				this->terminateDetachedPost();
-			}
-			
-			return LF_WAIT_LOOP_KEEP_WAITING;
-		});
-
-		//update offset
-		for (size_t j = 0 ; j < cnt ; j++)
-			offset += iov[i+j].iov_len;
+		//progress
+		cur += copySize;
 	}
 
-	//remove temp
-	delete [] iov;
+	//stats
+	this->stats->writeSize += cur;
 }
