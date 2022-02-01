@@ -21,13 +21,30 @@ class TaskIODummy : public TaskIO
 	public:
 		TaskIODummy(TaksIOType ioType, const ObjectRange & objRange):TaskIO(ioType, objRange) {this->ranAc = this->ranPost = false;};
 		~TaskIODummy(void) {EXPECT_TRUE(this->ranAc); EXPECT_TRUE(this->ranPost); gblDone++;};
-	private:
+	protected:
 		virtual void runPrepare(void) override {};
 		virtual void runAction(void) override {this->ranAc = true;};
 		virtual void runPostAction(void) override {this->ranPost = true;};
-	private:
+	public:
 		bool ranAc;
 		bool ranPost;
+};
+
+/****************************************************/
+class TaskIODummyDetached : public TaskIODummy
+{
+	public:
+		TaskIODummyDetached(TaksIOType ioType, const ObjectRange & objRange):TaskIODummy(ioType, objRange) {};
+	protected:
+		virtual void runPostAction(void) override {
+			this->setDetachedPost();
+			std::thread thread([this](){
+				sleep(1);
+				this->ranPost = true;
+				this->terminateDetachedPost();
+			});
+			thread.detach();
+		};
 };
 
 /****************************************************/
@@ -56,4 +73,24 @@ TEST(TestTaskRunner, run_many)
 
 	//check
 	EXPECT_EQ(cnt, gblDone);
+}
+
+/****************************************************/
+TEST(TestTaskRunner, run_detached_post)
+{
+	//vars
+	TaskRunner runner(1);
+
+	//reset global var
+	gblDone = 0;
+
+	//push a task
+	//we build 3 READ then 1 WRITE for force a "complex" scheduling
+	runner.pushTask(new TaskIODummyDetached(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 100, 200)));
+
+	//wait all to be done
+	runner.waitAllFinished();
+
+	//check
+	EXPECT_EQ(1, gblDone);
 }

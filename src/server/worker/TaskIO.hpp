@@ -28,6 +28,9 @@ enum TaksIOType
 };
 
 /****************************************************/
+class TaskRunner;
+
+/****************************************************/
 /**
  * Specialized version of a task to be used to perform IO operations.
  * The goal is to order the tasks in schedule groupes (layers).
@@ -53,7 +56,11 @@ class TaskIO : public Task
 		inline bool collide(const TaskIO * task) const;
 		inline bool isBlocked(void) const;
 		bool unblock(void);
+		void setDetachedPost(void);
+		bool isDetachedPost(void) const;
+		void setTaskRunner(TaskRunner * runner);
 	protected:
+		void terminateDetachedPost(void);
 		void setMemRanges(IORanges && memRanges);
 		void pushObjectRange(const ObjectRange & objectRange);
 	private:
@@ -78,6 +85,10 @@ class TaskIO : public Task
 		TaksIOType ioType;
 		/** Is in active list. **/
 		bool active;
+		/** Permit to detach the post operation to perform libfabric RDMA ops **/
+		bool detachPost;
+		/** Keep track of the task runner to notify when the detached post action has finished. **/
+		TaskRunner * taskRunner;
 };
 
 /****************************************************/

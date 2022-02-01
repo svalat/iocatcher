@@ -83,22 +83,13 @@ int TaskRunner::schedule(void)
 		TaskIO * ioTask = dynamic_cast<TaskIO*>(task);
 
 		//call end operation
+		ioTask->setTaskRunner(this);
 		bool finished = ioTask->runNextStage(STAGE_POST);
 		assert(finished);
 
-		//look for schedule
-		TaskVecor toStart;
-		taskScheduler.popFinishedTask(toStart, ioTask);
-
-		//schedule all
-		for (auto & it : toStart) {
-			this->runPrepareAndSchedule(it);
-		}
-
-		//delete the task & decrement
-		delete task;
-		this->pendingTasks--;
-		assert(this->pendingTasks >= 0);
+		//finish
+		if (ioTask->isDetachedPost() == false)
+			this->terminateDetachedPost(ioTask);
 
 		//poll again
 		task = this->workerManager.pollFinishedTask(false);
@@ -114,4 +105,22 @@ void TaskRunner::waitAllFinished(void)
 	//schedule until there not anymore pending tasks to run
 	while (this->pendingTasks > 0)
 		this->schedule();
+}
+
+/****************************************************/
+void TaskRunner::terminateDetachedPost(TaskIO * task)
+{
+	//look for schedule
+	TaskVecor toStart;
+	taskScheduler.popFinishedTask(toStart, task);
+
+	//schedule all
+	for (auto & it : toStart) {
+		this->runPrepareAndSchedule(it);
+	}
+
+	//delete the task & decrement
+	delete task;
+	this->pendingTasks--;
+	assert(this->pendingTasks >= 0);
 }

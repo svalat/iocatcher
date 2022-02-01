@@ -28,6 +28,7 @@ class TaskRunner
 		void pushTask(TaskIO * task);
 		int schedule(void);
 		void waitAllFinished(void);
+		void terminateDetachedPost(TaskIO * task);
 	private:
 		void runPrepareAndSchedule(TaskIO * task);
 	private:

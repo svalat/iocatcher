@@ -8,6 +8,7 @@
 #include <cassert>
 #include "base/common/Debug.hpp"
 #include "TaskIO.hpp"
+#include "TaskRunner.hpp"
 
 /****************************************************/
 using namespace IOC;
@@ -24,6 +25,8 @@ TaskIO::TaskIO(TaksIOType ioType, int objectRangesCount)
 	this->ioType = ioType;
 	this->active = false;
 	this->blockingDependencies = 0;
+	this->taskRunner = NULL;
+	this->detachPost = false;
 }
 
 /****************************************************/
@@ -38,6 +41,8 @@ TaskIO::TaskIO(TaksIOType ioType, const ObjectRange & objectRange)
 	this->ioType = ioType;
 	this->active = false;
 	this->blockingDependencies = 0;
+	this->taskRunner = NULL;
+	this->detachPost = false;
 }
 
 /****************************************************/
@@ -52,6 +57,8 @@ TaskIO::TaskIO(TaksIOType ioType, const ObjectRange & objectRange, const IORange
 	this->ioType = ioType;
 	this->active = false;
 	this->blockingDependencies = 0;
+	this->taskRunner = NULL;
+	this->detachPost = false;
 }
 
 /****************************************************/
@@ -149,4 +156,30 @@ void TaskIO::setMemRanges(IORanges && memRanges)
 void TaskIO::pushObjectRange(const ObjectRange & objectRange)
 {
 	this->objectRanges.push(objectRange);
+}
+
+/****************************************************/
+void TaskIO::setDetachedPost(void)
+{
+	this->detachPost = true;
+}
+
+/****************************************************/
+bool TaskIO::isDetachedPost(void) const
+{
+	return this->detachPost;
+}
+
+/****************************************************/
+void TaskIO::setTaskRunner(TaskRunner * runner)
+{
+	this->taskRunner = runner;
+}
+
+/****************************************************/
+void TaskIO::terminateDetachedPost(void)
+{
+	assert(this->detachPost);
+	assert(this->taskRunner != NULL);
+	this->taskRunner->terminateDetachedPost(this);
 }
