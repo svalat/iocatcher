@@ -5,7 +5,7 @@
 ######################################################
 
 ######################################################
-set(SERVER_TASKS_SRC TaskObjectFlush.cpp TaskDeferredOps.cpp TaskObjectCow.cpp)
+set(SERVER_TASKS_SRC TaskObjectFlush.cpp TaskDeferredOps.cpp TaskObjectCow.cpp TaskObjectWriteRdma.cpp)
 
 ######################################################
 add_library(ioc-server-tasks OBJECT ${SERVER_TASKS_SRC})

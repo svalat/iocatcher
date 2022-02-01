@@ -79,6 +79,12 @@ ssize_t DeferredOperation::run(void)
 			else
 				ret = this->size;
 			break;
+		case DEFEERRED_READ:
+			if (this->storageBackend != NULL)
+				ret = this->storageBackend->pread(objectId.high, objectId.low, this->buffer, this->size, this->offset);
+			else
+				ret = this->size;
+			break;
 	}
 
 	//on success

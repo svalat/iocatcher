@@ -21,6 +21,7 @@ namespace IOC
 enum DeferredOperationType
 {
 	DEFEERRED_WRITE,
+	DEFEERRED_READ,
 };
 
 /****************************************************/
