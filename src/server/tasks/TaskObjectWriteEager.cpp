@@ -37,6 +37,9 @@ TaskObjectWriteEager::TaskObjectWriteEager(LibfabricConnection * connection, Lib
 /****************************************************/
 void TaskObjectWriteEager::runPrepare(void)
 {
+	//debug
+	IOC_DEBUG_ARG("task:obj:write:eager", "%1.runPrepare(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
+
 	//get buffers from object
 	Object & object = this->container->getObject(objReadWrite.objectId);
 	this->status = object.getBuffers(this->ops, this->segments, objReadWrite.offset, objReadWrite.size, ACCESS_WRITE, true, true);
@@ -45,6 +48,9 @@ void TaskObjectWriteEager::runPrepare(void)
 /****************************************************/
 void TaskObjectWriteEager::runAction(void)
 {
+	//debug
+	IOC_DEBUG_ARG("task:obj:write:eager", "%1.runAction(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
+
 	//perform pread ops
 	TaskDeferredOps::runAction();
 
@@ -55,6 +61,9 @@ void TaskObjectWriteEager::runAction(void)
 /****************************************************/
 void TaskObjectWriteEager::runPostAction(void)
 {
+	//debug
+	IOC_DEBUG_ARG("task:obj:write:eager", "%1.runPostAction(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
+
 	//apply success or not
 	if (this->status && this->ret >= 0) {
 		//mark dirty
@@ -77,6 +86,9 @@ void TaskObjectWriteEager::runPostAction(void)
 **/
 void TaskObjectWriteEager::performMemcpyOps(void)
 {
+	//debug
+	IOC_DEBUG_ARG("task:obj:write:eager", "%1.performMemcpyOps(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
+
 	//get base pointer
 	const char * data = objReadWrite.optionalData;
 	assert(data != NULL);

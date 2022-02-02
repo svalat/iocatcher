@@ -47,6 +47,9 @@ TaskObjectCow::TaskObjectCow(LibfabricConnection * connection, LibfabricClientRe
 /****************************************************/
 void TaskObjectCow::runPrepare(void)
 {
+	//debug
+	IOC_DEBUG_ARG("task:obj:cow", "%1.runPrepare(%2)").arg(this).arg(Serializer::stringify(objCow)).end();
+
 	//flush object
 	Object & srcObject = this->container->getObject(this->objCow.sourceObjectId);
 	Object & destObject = this->container->getObject(this->objCow.destObjectId);
@@ -69,6 +72,9 @@ void TaskObjectCow::runPrepare(void)
 /****************************************************/
 void TaskObjectCow::runAction(void)
 {
+	//debug
+	IOC_DEBUG_ARG("task:obj:cow", "%1.runAction(%2)").arg(this).arg(Serializer::stringify(objCow)).end();
+
 	//create object
 	bool status;
 	LibfabricObjectCow & objectCow = objCow;
@@ -89,6 +95,9 @@ void TaskObjectCow::runAction(void)
 /****************************************************/
 void TaskObjectCow::runPostAction(void)
 {
+	//debug
+	IOC_DEBUG_ARG("task:obj:cow", "%1.runPostAction(%2)").arg(this).arg(Serializer::stringify(objCow)).end();
+
 	//send response
 	connection->sendResponse(IOC_LF_MSG_OBJ_COW_ACK, request.lfClientId, res);
 

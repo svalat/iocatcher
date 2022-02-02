@@ -39,7 +39,7 @@ TaskObjectReadWriteRdma::TaskObjectReadWriteRdma(LibfabricConnection * connectio
 void TaskObjectReadWriteRdma::runPrepare(void)
 {
 	//debug
-	IOC_DEBUG_ARG("task:obj:write:rdma", "%1.runPrepare(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
+	IOC_DEBUG_ARG("task:obj:rw:rdma", "%1.runPrepare(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
 
 	//get buffers from object
 	Object & object = this->container->getObject(objReadWrite.objectId);
@@ -55,7 +55,7 @@ void TaskObjectReadWriteRdma::runPrepare(void)
 void TaskObjectReadWriteRdma::runPostAction(void)
 {
 	//debug
-	IOC_DEBUG_ARG("task:obj:write:rdma", "%1.runPostAction(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
+	IOC_DEBUG_ARG("task:obj:rw:rdma", "%1.runPostAction(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
 
 	//check what to do
 	if (this->status && this->ret >= 0) {
@@ -77,7 +77,7 @@ void TaskObjectReadWriteRdma::runPostAction(void)
 void TaskObjectReadWriteRdma::performRdmaOps(void)
 {
 	//debug
-	IOC_DEBUG_ARG("task:obj:write:rdma", "%1.performRdmaOps(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
+	IOC_DEBUG_ARG("task:obj:rw:rdma", "%1.performRdmaOps(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
 
 	//build iovec
 	iovec * iov = Object::buildIovec(segments, objReadWrite.offset, objReadWrite.size);
@@ -105,14 +105,14 @@ void TaskObjectReadWriteRdma::performRdmaOps(void)
 			(*ops)--;
 
 			//debug
-			IOC_DEBUG_ARG("task:obj:write:rdma", "%1.finishRdmaOp(counter=%2)").arg(this).arg(ops).end();
+			IOC_DEBUG_ARG("task:obj:rw:rdma", "%1.finishRdmaOp(counter=%2)").arg(this).arg(ops).end();
 
 			if (*ops == 0) {
 				//stats
 				this->stats->writeSize += size;
 
 				//debug
-				IOC_DEBUG_ARG("task:obj:write:rdma", "%1.sendResponse(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
+				IOC_DEBUG_ARG("task:obj:rw:rdma", "%1.sendResponse(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
 
 				//send response
 				this->connection->sendResponse(IOC_LF_MSG_OBJ_READ_WRITE_ACK, request.lfClientId, 0);

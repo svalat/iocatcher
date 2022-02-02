@@ -33,6 +33,9 @@ TaskObjectFlush::TaskObjectFlush(LibfabricConnection * connection, LibfabricClie
 /****************************************************/
 void TaskObjectFlush::runPostAction(void)
 {
+	//debug
+	IOC_DEBUG_ARG("task:obj:flush", "%1.runPostAction(%2)").arg(this).arg(Serializer::stringify(flushInfos)).end();
+
 	//send response
 	connection->sendResponse(IOC_LF_MSG_OBJ_FLUSH_ACK, request.lfClientId, ret);
 
@@ -43,6 +46,9 @@ void TaskObjectFlush::runPostAction(void)
 /****************************************************/
 void TaskObjectFlush::runPrepare(void)
 {
+	//debug
+	IOC_DEBUG_ARG("task:obj:flush", "%1.runPrepare(%2)").arg(this).arg(Serializer::stringify(flushInfos)).end();
+
 	//build flush operations
 	Object & object = this->container->getObject(this->flushInfos.objectId);
 	object.flush(this->ops, this->flushInfos.offset, this->flushInfos.size);
