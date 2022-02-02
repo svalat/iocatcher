@@ -7,7 +7,7 @@
 /****************************************************/
 #include <cassert>
 #include <utility>
-#include "TaskObjectWriteRdma.hpp"
+#include "TaskObjectReadWriteRdma.hpp"
 #include "base/network/Protocol.hpp"
 #include "../core/Consts.hpp"
 
@@ -18,7 +18,7 @@ using namespace IOC;
 /**
  * @todo optimisze not using SIZE_MAX if the flush range is smaller !
 **/
-TaskObjectWriteRdma::TaskObjectWriteRdma(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite, ObjectAccessMode mode)
+TaskObjectReadWriteRdma::TaskObjectReadWriteRdma(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite, ObjectAccessMode mode)
                 :TaskDeferredOps((mode==ACCESS_WRITE?IO_TYPE_WRITE:IO_TYPE_READ), ObjectRange(objReadWrite.objectId, objReadWrite.offset, objReadWrite.size))
                 ,request(request)
                 ,objReadWrite(objReadWrite)
@@ -36,7 +36,7 @@ TaskObjectWriteRdma::TaskObjectWriteRdma(LibfabricConnection * connection, Libfa
 }
 
 /****************************************************/
-void TaskObjectWriteRdma::runPrepare(void)
+void TaskObjectReadWriteRdma::runPrepare(void)
 {
 	//debug
 	IOC_DEBUG_ARG("task:obj:write:rdma", "%1.runPrepare(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
@@ -52,7 +52,7 @@ void TaskObjectWriteRdma::runPrepare(void)
 }
 
 /****************************************************/
-void TaskObjectWriteRdma::runPostAction(void)
+void TaskObjectReadWriteRdma::runPostAction(void)
 {
 	//debug
 	IOC_DEBUG_ARG("task:obj:write:rdma", "%1.runPostAction(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
@@ -74,7 +74,7 @@ void TaskObjectWriteRdma::runPostAction(void)
 /**
  * @todo handle thread safety on stat increment
 **/
-void TaskObjectWriteRdma::performRdmaOps(void)
+void TaskObjectReadWriteRdma::performRdmaOps(void)
 {
 	//debug
 	IOC_DEBUG_ARG("task:obj:write:rdma", "%1.performRdmaOps(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
@@ -137,7 +137,7 @@ void TaskObjectWriteRdma::performRdmaOps(void)
 }
 
 /****************************************************/
-void TaskObjectWriteRdma::rdmaOpv(int destinationEpId, struct iovec * iov, int count, LibfabricAddr remoteAddr, uint64_t remoteKey, std::function<LibfabricActionResult(void)> postAction)
+void TaskObjectReadWriteRdma::rdmaOpv(int destinationEpId, struct iovec * iov, int count, LibfabricAddr remoteAddr, uint64_t remoteKey, std::function<LibfabricActionResult(void)> postAction)
 {
 	//REMARK, for a write op request, we perfrom a rdmaRead to fetch the data from the client to the server.
 	//Invert for the read op.

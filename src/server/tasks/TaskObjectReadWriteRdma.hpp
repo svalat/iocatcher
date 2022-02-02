@@ -4,8 +4,8 @@
 *  COPYRIGHT: 2022 Sebastien Valat                   *
 *****************************************************/
 
-#ifndef IOC_TASK_OBJECT_WRITE_RDMA_HPP
-#define IOC_TASK_OBJECT_WRITE_RDMA_HPP
+#ifndef IOC_TASK_OBJECT_READ_WRITE_RDMA_HPP
+#define IOC_TASK_OBJECT_READ_WRITE_RDMA_HPP
 
 /****************************************************/
 #include "../../base/network/LibfabricConnection.hpp"
@@ -22,10 +22,10 @@ namespace IOC
 /**
  * Implement the server side handling of ping-pong operations.
 **/
-class TaskObjectWriteRdma : public TaskDeferredOps
+class TaskObjectReadWriteRdma : public TaskDeferredOps
 {
 	public:
-		TaskObjectWriteRdma(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite, ObjectAccessMode mode);
+		TaskObjectReadWriteRdma(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite, ObjectAccessMode mode);
 	protected:
 		virtual void runPostAction(void) override;
 		virtual void runPrepare(void) override;
@@ -45,4 +45,4 @@ class TaskObjectWriteRdma : public TaskDeferredOps
 
 }
 
-#endif //IOC_TASK_OBJECT_WRITE_RDMA_HPP
+#endif //IOC_TASK_OBJECT_READ_WRITE_RDMA_HPP
