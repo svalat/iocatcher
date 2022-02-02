@@ -757,3 +757,49 @@ TEST(TestLibfabricConnection, signalPassivePolling)
 	EXPECT_TRUE(clientOk);
 	EXPECT_TRUE(serverOk);
 }
+
+/****************************************************/
+TEST(LibfabricPreBuiltResponse, built_and_send)
+{
+	bool gotMessage = false;
+
+	//play client server
+	clientServer([&gotMessage](LibfabricConnection & connection, int clientId){
+		//>>>> server <<<<
+
+		//register hook
+		connection.registerHook(IOC_LF_MSG_PING, [&gotMessage](LibfabricConnection * connection, LibfabricClientRequest & request) {
+			//extract & check
+			LibfabricResponse response;
+			request.deserializer.apply("response", response);
+			EXPECT_EQ(-1, response.status);
+			EXPECT_EQ(6, response.msgDataSize);
+			EXPECT_TRUE(response.msgHasData);
+			EXPECT_STREQ("hello", response.optionalData);
+
+			//end
+			gotMessage = true;
+			request.terminate();
+			//say to unblock the poll(true) loop when return
+			return LF_WAIT_LOOP_UNBLOCK;
+		});
+
+		//poll unit get message
+		connection.poll(true);
+	},[](LibfabricConnection & connection){
+		//>>>> client <<<<
+		//build response
+		LibfabricPreBuiltResponse response(IOC_LF_MSG_PING, IOC_LF_SERVER_ID, &connection);
+		response.setStatus(-1);
+		response.setData("hello", 6);
+		response.build();
+
+		//send it
+		response.send();
+
+		//wait to be done
+		connection.poll(true);
+	});
+
+	ASSERT_TRUE(gotMessage);
+}

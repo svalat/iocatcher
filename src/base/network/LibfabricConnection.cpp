@@ -1239,4 +1239,85 @@ void LibfabricConnection::sendResponse(LibfabricMessageType msgType, uint64_t lf
 		this->sendMessage(msgType, lfClientId, response, new LibfabricPostActionNop(LF_WAIT_LOOP_KEEP_WAITING));
 }
 
+/****************************************************/
+LibfabricPreBuiltResponse::LibfabricPreBuiltResponse(LibfabricMessageType msgType, uint64_t lfClientId, LibfabricConnection * connection)
+{
+	this->connection = connection;
+	this->msgType = msgType;
+	this->lfClientId = lfClientId;
+	this->response.initStatusOnly(0);
+	this->msgBuffer = NULL;
+	this->msgSize = 0;
+}
+
+/****************************************************/
+void LibfabricPreBuiltResponse::setStatus(int32_t status)
+{
+	this->response.status = status;
+}
+
+/****************************************************/
+void LibfabricPreBuiltResponse::setData(const void * data, size_t size)
+{
+	//check
+	assert(data != NULL);
+	assert(size != 0);
+
+	//setup
+	this->response.msgHasData = true;
+	this->response.optionalData = static_cast<const char*>(data);
+	this->response.msgDataSize = size;
+}
+
+/****************************************************/
+void LibfabricPreBuiltResponse::setBuffers(const LibfabricBuffer * buffers, size_t cntBuffers)
+{
+	//check
+	assert(buffers != NULL);
+	assert(cntBuffers != 0);
+
+	//setup
+	this->response.msgHasData = true;
+	this->response.optionalDataFragments = buffers;
+	this->response.optionalDataFragmentCount = cntBuffers;
+}
+
+/****************************************************/
+void LibfabricPreBuiltResponse::build(void)
+{
+	//get a buffer
+	LibfabricDomain & domain = this->connection->getDomain();
+	void * buffer = domain.getMsgBuffer();
+	size_t bufferSize = domain.getMsgBufferSize();
+
+	//build the header
+	LibfabricMessageHeader header;
+	this->connection->fillProtocolHeader(header, msgType);
+
+	//serialize
+	Serializer serializer(buffer, bufferSize);
+	serializer.apply("header", header);
+	serializer.apply("data", this->response);
+
+	//extract size
+	size_t finalSize = serializer.getCursor();
+
+	//store
+	this->msgBuffer = buffer;
+	this->msgSize = finalSize;
+}
+
+/****************************************************/
+void LibfabricPreBuiltResponse::send(void)
+{
+	//build post action
+	LibfabricPostActionNop * postAction = new LibfabricPostActionNop(LF_WAIT_LOOP_UNBLOCK);
+
+	//register it to be freed when the postaction will be deleted
+	postAction->attachDomainBuffer(this->connection, this->msgBuffer);
+
+	//send the message
+	this->connection->sendRawMessage(this->msgBuffer, this->msgSize, this->lfClientId, postAction);
+}
+
 }

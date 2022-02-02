@@ -94,6 +94,28 @@ class LibfabricPostActionNop : public LibfabricPostAction
 };
 
 /****************************************************/
+class LibfabricConnection;
+
+/****************************************************/
+class LibfabricPreBuiltResponse
+{
+	public:
+		LibfabricPreBuiltResponse(LibfabricMessageType msgType, uint64_t lfClientId, LibfabricConnection * connection);
+		void setStatus(int32_t status);
+		void setData(const void * data, size_t size);
+		void setBuffers(const LibfabricBuffer * buffers, size_t cntBuffers);
+		void build(void);
+		void send(void);
+	private:
+		LibfabricConnection * connection;
+		LibfabricResponse response;
+		LibfabricMessageType msgType;
+		uint64_t lfClientId;
+		void * msgBuffer;
+		size_t msgSize;
+};
+
+/****************************************************/
 /**
  * Handling wrapper to managment a libfabric connection. It provides the 
  * necessary semantic to receive messages, send messages and make RDMA operation 
@@ -148,6 +170,8 @@ class LibfabricConnection
 		void onConnInit(LibfabricClientRequest & request);
 		bool checkAuth(LibfabricMessageHeader & header, uint64_t clientId, int id);
 		void pollAllCqInCache(void);
+	private:
+		friend LibfabricPreBuiltResponse;
 	private:
 		/** Pointer to the libfabric domain to be used to establish the connection. **/
 		LibfabricDomain * lfDomain;
