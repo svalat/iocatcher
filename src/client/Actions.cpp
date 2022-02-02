@@ -125,7 +125,7 @@ ssize_t IOC::obj_read(LibfabricConnection &connection, const LibfabricObjectId &
 
 	//if need to copy data from eager exchange
 	if (response.msgHasData) {
-		assumeArg(response.msgDataSize == size, "Invalid message size recieved, expect %1 got %2")
+		assumeArg(response.msgDataSize == size, "Invalid message size recieved, expect %2 got %1")
 			.arg(response.msgDataSize)
 			.arg(size)
 			.end();

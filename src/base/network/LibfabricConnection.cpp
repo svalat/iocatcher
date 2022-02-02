@@ -1251,6 +1251,13 @@ LibfabricPreBuiltResponse::LibfabricPreBuiltResponse(LibfabricMessageType msgTyp
 }
 
 /****************************************************/
+LibfabricPreBuiltResponse::~LibfabricPreBuiltResponse(void)
+{
+	if (this->response.optionalDataFragments != NULL)
+		delete [] this->response.optionalDataFragments;
+}
+
+/****************************************************/
 void LibfabricPreBuiltResponse::setStatus(int32_t status)
 {
 	this->response.status = status;
@@ -1270,7 +1277,7 @@ void LibfabricPreBuiltResponse::setData(const void * data, size_t size)
 }
 
 /****************************************************/
-void LibfabricPreBuiltResponse::setBuffers(const LibfabricBuffer * buffers, size_t cntBuffers)
+void LibfabricPreBuiltResponse::setBuffers(const LibfabricBuffer * buffers, size_t cntBuffers, size_t totalSize)
 {
 	//check
 	assert(buffers != NULL);
@@ -1278,6 +1285,7 @@ void LibfabricPreBuiltResponse::setBuffers(const LibfabricBuffer * buffers, size
 
 	//setup
 	this->response.msgHasData = true;
+	this->response.msgDataSize = totalSize;
 	this->response.optionalDataFragments = buffers;
 	this->response.optionalDataFragmentCount = cntBuffers;
 }

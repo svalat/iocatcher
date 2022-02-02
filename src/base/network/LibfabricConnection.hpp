@@ -101,9 +101,10 @@ class LibfabricPreBuiltResponse
 {
 	public:
 		LibfabricPreBuiltResponse(LibfabricMessageType msgType, uint64_t lfClientId, LibfabricConnection * connection);
+		~LibfabricPreBuiltResponse(void);
 		void setStatus(int32_t status);
 		void setData(const void * data, size_t size);
-		void setBuffers(const LibfabricBuffer * buffers, size_t cntBuffers);
+		void setBuffers(const LibfabricBuffer * buffers, size_t cntBuffers, size_t totalSize);
 		void build(void);
 		void send(void);
 	private:
