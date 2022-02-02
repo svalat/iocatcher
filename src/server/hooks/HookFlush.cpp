@@ -43,7 +43,7 @@ LibfabricActionResult HookFlush::onMessage(LibfabricConnection * connection, Lib
 		.end();
 
 	//build task to delegate to a worker thread
-	TaskIO * task = new TaskObjectFlush(connection, request, this->container, objFlush);
+	IOTask * task = new TaskObjectFlush(connection, request, this->container, objFlush);
 	this->taskRunner->pushTask(task);
 
 	//ok

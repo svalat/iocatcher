@@ -10,14 +10,14 @@
 /****************************************************/
 #include <list>
 #include <vector>
-#include "TaskIO.hpp"
+#include "IOTask.hpp"
 
 /****************************************************/
 namespace IOC
 {
 
 /****************************************************/
-typedef std::vector<TaskIO*> TaskVecor;
+typedef std::vector<IOTask*> TaskVecor;
 
 /****************************************************/
 /**
@@ -28,12 +28,12 @@ typedef std::vector<TaskIO*> TaskVecor;
 class TaskScheduler
 {
 	public:
-		bool pushTask(TaskIO * task);
-		void popFinishedTask(TaskVecor & toStart, TaskIO * task);
-		bool canSchedulePreparedTask(TaskIO * task);
+		bool pushTask(IOTask * task);
+		void popFinishedTask(TaskVecor & toStart, IOTask * task);
+		bool canSchedulePreparedTask(IOTask * task);
 	private:
-		void removeFromList(TaskIO * task);
-		bool canSchedule(TaskIO * task);
+		void removeFromList(IOTask * task);
+		bool canSchedule(IOTask * task);
 	private:
 		/**
 		 * Use a double linked list to order the task by they arrival time.
@@ -43,7 +43,7 @@ class TaskScheduler
 		 * The new tasks arriving are added at then end of the list and are
 		 * poped when they terminate.
 		**/
-		std::list<TaskIO*> tasks;
+		std::list<IOTask*> tasks;
 };
 
 }

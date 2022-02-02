@@ -125,7 +125,7 @@ LibfabricActionResult HookObjectRead::onMessage(LibfabricConnection * connection
 		request.terminate();
 	} else {
 		//launch the task
-		TaskIO * task = new TaskObjectReadWriteRdma(connection, request, container, stats, objReadWrite, ACCESS_READ);
+		IOTask * task = new TaskObjectReadWriteRdma(connection, request, container, stats, objReadWrite, ACCESS_READ);
 		this->taskRunner->pushTask(task);
 
 		//we do not need the request anymore (data via RDMA)

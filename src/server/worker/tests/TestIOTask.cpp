@@ -6,27 +6,27 @@
 
 /****************************************************/
 #include <gtest/gtest.h>
-#include "../TaskIO.hpp"
+#include "../IOTask.hpp"
 
 /****************************************************/
 using namespace IOC;
 using namespace testing;
 
 /****************************************************/
-class TaskIODummy : public TaskIO
+class IOTaskDummy : public IOTask
 {
 	public:
-		TaskIODummy(TaksIOType ioType, const ObjectRange & objRange):TaskIO(ioType, objRange) {};
+		IOTaskDummy(IOTaksType ioType, const ObjectRange & objRange):IOTask(ioType, objRange) {};
 		virtual void runPrepare(void) override {};
 		virtual void runAction(void) override {};
 		virtual void runPostAction(void) override {};
 };
 
 /****************************************************/
-TEST(TestTaskIO, isActive_activate)
+TEST(TestIOTask, isActive_activate)
 {
 	//build a task
-	TaskIODummy task(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0, 10));
+	IOTaskDummy task(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0, 10));
 
 	//check
 	ASSERT_FALSE(task.isActive());
@@ -39,11 +39,11 @@ TEST(TestTaskIO, isActive_activate)
 }
 
 /****************************************************/
-TEST(TestTaskIO, registerToUnblock)
+TEST(TestIOTask, registerToUnblock)
 {
 	//build two task which collide and cannot run in parallel
-	TaskIODummy taskRead(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0, 10));
-	TaskIODummy taskWrite(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 5, 10));
+	IOTaskDummy taskRead(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0, 10));
+	IOTaskDummy taskWrite(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 5, 10));
 
 	//check
 	ASSERT_EQ(0, taskRead.getBlockedTasks().size());
@@ -57,13 +57,13 @@ TEST(TestTaskIO, registerToUnblock)
 }
 
 /****************************************************/
-TEST(TestTaskIO, canRunInParallel)
+TEST(TestIOTask, canRunInParallel)
 {
 	//build two task which collide and cannot run in parallel
-	TaskIODummy taskRead1(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0, 10));
-	TaskIODummy taskRead2(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0, 10));
-	TaskIODummy taskWrite1(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 5, 10));
-	TaskIODummy taskWrite2(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 0, 7));
+	IOTaskDummy taskRead1(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0, 10));
+	IOTaskDummy taskRead2(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0, 10));
+	IOTaskDummy taskWrite1(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 5, 10));
+	IOTaskDummy taskWrite2(IO_TYPE_WRITE, ObjectRange(ObjectId(10, 20), 0, 7));
 
 	//check
 	EXPECT_TRUE(taskRead1.canRunInParallel(&taskRead2));
@@ -73,12 +73,12 @@ TEST(TestTaskIO, canRunInParallel)
 }
 
 /****************************************************/
-TEST(TestTaskIO, collide)
+TEST(TestIOTask, collide)
 {
 	//build two task which collide and cannot run in parallel
-	TaskIODummy taskRead1(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0, 10));
-	TaskIODummy taskRead2(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 5, 5));
-	TaskIODummy taskRead3(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 10, 5));
+	IOTaskDummy taskRead1(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 0, 10));
+	IOTaskDummy taskRead2(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 5, 5));
+	IOTaskDummy taskRead3(IO_TYPE_READ, ObjectRange(ObjectId(10, 20), 10, 5));
 
 	//check
 	EXPECT_TRUE(taskRead1.collide(&taskRead2));

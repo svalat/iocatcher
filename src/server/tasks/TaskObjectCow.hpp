@@ -21,7 +21,7 @@ namespace IOC
 /**
  * Implement the server side handling of ping-pong operations.
 **/
-class TaskObjectCow : public TaskIO
+class TaskObjectCow : public IOTask
 {
 	public:
 		TaskObjectCow(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, LibfabricObjectCow objCow);

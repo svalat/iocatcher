@@ -18,7 +18,7 @@ using namespace IOC;
  * @todo optimisze not using SIZE_MAX if the flush range is smaller !
 **/
 TaskObjectCow::TaskObjectCow(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, LibfabricObjectCow objCow)
-                :TaskIO(IO_TYPE_WRITE, 2)
+                :IOTask(IO_TYPE_WRITE, 2)
                 ,request(request)
                 ,objCow(objCow)
 {

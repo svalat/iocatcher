@@ -25,12 +25,12 @@ class TaskRunner
 {
 	public:
 		TaskRunner(int workers, LibfabricConnection * connection = NULL);
-		void pushTask(TaskIO * task);
+		void pushTask(IOTask * task);
 		int schedule(void);
 		void waitAllFinished(void);
-		void terminateDetachedPost(TaskIO * task);
+		void terminateDetachedPost(IOTask * task);
 	private:
-		void runPrepareAndSchedule(TaskIO * task);
+		void runPrepareAndSchedule(IOTask * task);
 	private:
 		TaskScheduler taskScheduler;
 		WorkerManager workerManager;

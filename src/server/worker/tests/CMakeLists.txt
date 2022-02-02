@@ -13,7 +13,7 @@ include_directories(../)
 set(TEST_NAMES TestSharedQueue
                TestWorker
                TestWorkerManager
-               TestTaskIO
+               TestIOTask
                TestTaskScheduler
                TestIORanges
 			   TestObjectRanges

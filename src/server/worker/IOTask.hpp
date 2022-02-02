@@ -4,8 +4,8 @@
 *  COPYRIGHT: 2022 Sebastien Valat                   *
 *****************************************************/
 
-#ifndef IOC_TASK_IO_HPP
-#define IOC_TASK_IO_HPP
+#ifndef IOC_IO_TASK_HPP
+#define IOC_IO_TASK_HPP
 
 /****************************************************/
 #include <cstdlib>
@@ -19,7 +19,7 @@ namespace IOC
 {
 
 /****************************************************/
-enum TaksIOType
+enum IOTaksType
 {
 	/** Read IO has the property to be performed in parallel on the same segment. **/
 	IO_TYPE_READ,
@@ -41,19 +41,19 @@ class TaskRunner;
  *    and decrement the dependency counter of each task colliding with
  *    the current one. If it fall to 0, then the task can be started.
 **/
-class TaskIO : public Task
+class IOTask : public Task
 {
 	public:
-		TaskIO(TaksIOType ioType, int objectRangesCount);
-		TaskIO(TaksIOType ioType, const ObjectRange & objectRange);
-		TaskIO(TaksIOType ioType, const ObjectRange & objectRange, const IORanges & memRanges);
-		virtual ~TaskIO(void) {};
+		IOTask(IOTaksType ioType, int objectRangesCount);
+		IOTask(IOTaksType ioType, const ObjectRange & objectRange);
+		IOTask(IOTaksType ioType, const ObjectRange & objectRange, const IORanges & memRanges);
+		virtual ~IOTask(void) {};
 		bool isActive(void) const;
 		void activate(void);
-		void registerToUnblock(TaskIO * task);
-		std::deque<TaskIO*> & getBlockedTasks(void);
-		bool canRunInParallel(const TaskIO * task) const;
-		inline bool collide(const TaskIO * task) const;
+		void registerToUnblock(IOTask * task);
+		std::deque<IOTask*> & getBlockedTasks(void);
+		bool canRunInParallel(const IOTask * task) const;
+		inline bool collide(const IOTask * task) const;
 		inline bool isBlocked(void) const;
 		bool unblock(void);
 		void setDetachedPost(void);
@@ -64,12 +64,12 @@ class TaskIO : public Task
 		void setMemRanges(IORanges && memRanges);
 		void pushObjectRange(const ObjectRange & objectRange);
 	private:
-		static inline bool oneIs(const TaskIO * task1, const TaskIO * task2, TaksIOType type);
-		static inline bool oneOrTheOtherIs(const TaskIO * task1, const TaskIO * task2, TaksIOType type1, TaksIOType type2);
-		static inline bool both(const TaskIO * task1, const TaskIO * task2, TaksIOType type);
+		static inline bool oneIs(const IOTask * task1, const IOTask * task2, IOTaksType type);
+		static inline bool oneOrTheOtherIs(const IOTask * task1, const IOTask * task2, IOTaksType type1, IOTaksType type2);
+		static inline bool both(const IOTask * task1, const IOTask * task2, IOTaksType type);
 	private:
 		/** List of task to unblock when this one finishes. **/
-		std::deque<TaskIO*> toUnblock;
+		std::deque<IOTask*> toUnblock;
 		/** 
 		 * Object range to which the IO applies.
 		 * @todo we need a multi-range because we need to protect the memory buffer which can be shared
@@ -82,7 +82,7 @@ class TaskIO : public Task
 		/** Count blocking dependencies to know when we can start the task. **/
 		int blockingDependencies;
 		/** Define the type of IO. **/
-		TaksIOType ioType;
+		IOTaksType ioType;
 		/** Is in active list. **/
 		bool active;
 		/** Permit to detach the post operation to perform libfabric RDMA ops **/
@@ -92,17 +92,17 @@ class TaskIO : public Task
 };
 
 /****************************************************/
-bool TaskIO::collide(const TaskIO * task) const
+bool IOTask::collide(const IOTask * task) const
 {
 	return this->objectRanges.collide(task->objectRanges) || this->memRanges.collide(task->memRanges);
 };
 
 /****************************************************/
-bool TaskIO::isBlocked(void) const
+bool IOTask::isBlocked(void) const
 {
 	return this->blockingDependencies > 0;
 }
 
 }
 
-#endif //IOC_TASK_IO_HPP
+#endif //IOC_IO_TASK_HPP

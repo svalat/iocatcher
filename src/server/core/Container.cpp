@@ -223,7 +223,7 @@ void Container::flushAllByTasks(TaskRunner * runner)
 		ObjectRange objectRange(object.getObjectId(), 0, SIZE_MAX);
 
 		//build task to delegate to a worker thread
-		TaskIO * task = new TaskDeferredOpsPrepared(IO_TYPE_READ, objectRange, ops);
+		IOTask * task = new TaskDeferredOpsPrepared(IO_TYPE_READ, objectRange, ops);
 		runner->pushTask(task);
 	}
 }

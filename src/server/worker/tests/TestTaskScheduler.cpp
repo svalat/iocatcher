@@ -13,10 +13,10 @@ using namespace IOC;
 using namespace testing;
 
 /****************************************************/
-class TaskIODummy : public TaskIO
+class TaskIODummy : public IOTask
 {
 	public:
-		TaskIODummy(TaksIOType ioType, const ObjectRange & objRange):TaskIO(ioType, objRange) {};
+		TaskIODummy(IOTaksType ioType, const ObjectRange & objRange):IOTask(ioType, objRange) {};
 		virtual void runPrepare(void) override {};
 		virtual void runAction(void) override {};
 		virtual void runPostAction(void) override {};

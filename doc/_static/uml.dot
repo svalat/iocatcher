@@ -195,8 +195,8 @@ digraph IOCATCHER
 	subgraph cluster_tasks {
 		label = "Worker tasks"
 
-		TaskIOHub [
-			label = "TaskIOHub"
+		IOTaskHub [
+			label = "IOTaskHub"
 			shape = ellipse
 		]
 
@@ -236,8 +236,8 @@ digraph IOCATCHER
 			label = "{Task|\l|\l}"
 		]
 
-		TaskIO [
-			label = "{TaskIO|\l|\l}"
+		IOTask [
+			label = "{IOTask|\l|\l}"
 		]
 
 		TaskRunner [
@@ -272,11 +272,11 @@ digraph IOCATCHER
 	MemoryBackend -> MemoryBackendNvdimm
 	MemoryBackend -> MemoryBackendCache
 	MemoryBackend -> MemoryBackendRoundRobin
-	TaskIOHub -> TaskDeferredOps
-	TaskIOHub -> TaskObjectCow
-	TaskIOHub -> TaskObjectFlush
-	TaskIO -> TaskIOHub
-	Task -> TaskIO
+	IOTaskHub -> TaskDeferredOps
+	IOTaskHub -> TaskObjectCow
+	IOTaskHub -> TaskObjectFlush
+	IOTask -> IOTaskHub
+	Task -> IOTask
 
 	//composition
 	LibfabricHandler -> LibfabricDomain[arrowtail=diamond]
@@ -320,10 +320,10 @@ digraph IOCATCHER
 	ObjectRange -> IORanges[arrowtail=diamond]
 	ObjectRanges -> ObjectRange[arrowtail=diamond]
 	WorkerManager -> Worker[arrowtail=diamond]
-	TaskScheduler -> TaskIO[arrowtail=diamond]
+	TaskScheduler -> IOTask[arrowtail=diamond]
 	TaskRunner -> WorkerManager[arrowtail=diamond]
 	TaskRunner -> TaskScheduler[arrowtail=diamond]
 	Worker -> Task[arrowtail=diamond]
-	TaskIO -> IORanges[arrowtail=diamond]
-	TaskIO -> ObjectRanges[arrowtail=diamond]
+	IOTask -> IORanges[arrowtail=diamond]
+	IOTask -> ObjectRanges[arrowtail=diamond]
 }

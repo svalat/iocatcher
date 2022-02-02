@@ -16,10 +16,10 @@ using namespace testing;
 static int gblDone = 0;
 
 /****************************************************/
-class TaskIODummy : public TaskIO
+class TaskIODummy : public IOTask
 {
 	public:
-		TaskIODummy(TaksIOType ioType, const ObjectRange & objRange):TaskIO(ioType, objRange) {this->ranAc = this->ranPost = false;};
+		TaskIODummy(IOTaksType ioType, const ObjectRange & objRange):IOTask(ioType, objRange) {this->ranAc = this->ranPost = false;};
 		~TaskIODummy(void) {EXPECT_TRUE(this->ranAc); EXPECT_TRUE(this->ranPost); gblDone++;};
 	protected:
 		virtual void runPrepare(void) override {};
@@ -34,7 +34,7 @@ class TaskIODummy : public TaskIO
 class TaskIODummyDetached : public TaskIODummy
 {
 	public:
-		TaskIODummyDetached(TaksIOType ioType, const ObjectRange & objRange):TaskIODummy(ioType, objRange) {};
+		TaskIODummyDetached(IOTaksType ioType, const ObjectRange & objRange):TaskIODummy(ioType, objRange) {};
 	protected:
 		virtual void runPostAction(void) override {
 			this->setDetachedPost();

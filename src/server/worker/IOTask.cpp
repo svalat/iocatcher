@@ -7,14 +7,14 @@
 /****************************************************/
 #include <cassert>
 #include "base/common/Debug.hpp"
-#include "TaskIO.hpp"
+#include "IOTask.hpp"
 #include "TaskRunner.hpp"
 
 /****************************************************/
 using namespace IOC;
 
 /****************************************************/
-TaskIO::TaskIO(TaksIOType ioType, int objectRangesCount)
+IOTask::IOTask(IOTaksType ioType, int objectRangesCount)
        :memRanges(0)
        ,objectRanges(objectRangesCount)
 {
@@ -30,7 +30,7 @@ TaskIO::TaskIO(TaksIOType ioType, int objectRangesCount)
 }
 
 /****************************************************/
-TaskIO::TaskIO(TaksIOType ioType, const ObjectRange & objectRange)
+IOTask::IOTask(IOTaksType ioType, const ObjectRange & objectRange)
        :memRanges(0)
        ,objectRanges(objectRange)
 {
@@ -46,7 +46,7 @@ TaskIO::TaskIO(TaksIOType ioType, const ObjectRange & objectRange)
 }
 
 /****************************************************/
-TaskIO::TaskIO(TaksIOType ioType, const ObjectRange & objectRange, const IORanges & memRanges)
+IOTask::IOTask(IOTaksType ioType, const ObjectRange & objectRange, const IORanges & memRanges)
        :memRanges(memRanges)
        ,objectRanges(objectRange)
 {
@@ -62,26 +62,26 @@ TaskIO::TaskIO(TaksIOType ioType, const ObjectRange & objectRange, const IORange
 }
 
 /****************************************************/
-inline bool TaskIO::oneIs(const TaskIO * task1, const TaskIO * task2, TaksIOType type)
+inline bool IOTask::oneIs(const IOTask * task1, const IOTask * task2, IOTaksType type)
 {
 	return (task1->ioType == type || task2->ioType == type);
 }
 
 /****************************************************/
-inline bool TaskIO::oneOrTheOtherIs(const TaskIO * task1, const TaskIO * task2, TaksIOType type1, TaksIOType type2)
+inline bool IOTask::oneOrTheOtherIs(const IOTask * task1, const IOTask * task2, IOTaksType type1, IOTaksType type2)
 {
 	return (task1->ioType == type1 && task2->ioType == type2)
 	    || (task1->ioType == type2 && task2->ioType == type1);
 }
 
 /****************************************************/
-inline bool TaskIO::both(const TaskIO * task1, const TaskIO * task2, TaksIOType type)
+inline bool IOTask::both(const IOTask * task1, const IOTask * task2, IOTaksType type)
 {
 	return (task1->ioType == type && task2->ioType == type);
 }
 
 /****************************************************/
-bool TaskIO::canRunInParallel(const TaskIO * task) const
+bool IOTask::canRunInParallel(const IOTask * task) const
 {
 	//check
 	assert(task != NULL);
@@ -100,7 +100,7 @@ bool TaskIO::canRunInParallel(const TaskIO * task) const
 }
 
 /****************************************************/
-void TaskIO::registerToUnblock(TaskIO * task)
+void IOTask::registerToUnblock(IOTask * task)
 {
 	//check
 	assert(this != NULL);
@@ -116,25 +116,25 @@ void TaskIO::registerToUnblock(TaskIO * task)
 }
 
 /****************************************************/
-std::deque<TaskIO*> & TaskIO::getBlockedTasks(void)
+std::deque<IOTask*> & IOTask::getBlockedTasks(void)
 {
 	return this->toUnblock;
 }
 
 /****************************************************/
-bool TaskIO::isActive(void) const
+bool IOTask::isActive(void) const
 {
 	return this->active;
 };
 
 /****************************************************/
-void TaskIO::activate(void)
+void IOTask::activate(void)
 {
 	this->active = true;
 };
 
 /****************************************************/
-bool TaskIO::unblock(void)
+bool IOTask::unblock(void)
 {
 	//check
 	assume(this->blockingDependencies > 0, "Try to unblock a task which is already unblocked !");
@@ -147,37 +147,37 @@ bool TaskIO::unblock(void)
 }
 
 /****************************************************/
-void TaskIO::setMemRanges(IORanges && memRanges)
+void IOTask::setMemRanges(IORanges && memRanges)
 {
 	this->memRanges = std::move(memRanges);
 }
 
 /****************************************************/
-void TaskIO::pushObjectRange(const ObjectRange & objectRange)
+void IOTask::pushObjectRange(const ObjectRange & objectRange)
 {
 	this->objectRanges.push(objectRange);
 }
 
 /****************************************************/
-void TaskIO::setDetachedPost(void)
+void IOTask::setDetachedPost(void)
 {
 	this->detachPost = true;
 }
 
 /****************************************************/
-bool TaskIO::isDetachedPost(void) const
+bool IOTask::isDetachedPost(void) const
 {
 	return this->detachPost;
 }
 
 /****************************************************/
-void TaskIO::setTaskRunner(TaskRunner * runner)
+void IOTask::setTaskRunner(TaskRunner * runner)
 {
 	this->taskRunner = runner;
 }
 
 /****************************************************/
-void TaskIO::terminateDetachedPost(void)
+void IOTask::terminateDetachedPost(void)
 {
 	assert(this->detachPost);
 	assert(this->taskRunner != NULL);

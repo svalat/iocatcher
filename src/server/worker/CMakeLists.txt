@@ -5,7 +5,7 @@
 ######################################################
 
 ######################################################
-set(SERVER_WORKER_SRC TaskIO.cpp
+set(SERVER_WORKER_SRC IOTask.cpp
                       Worker.cpp
                       WorkerManager.cpp
                       TaskScheduler.cpp

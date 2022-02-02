@@ -14,8 +14,8 @@
 using namespace IOC;
 
 /****************************************************/
-TaskDeferredOps::TaskDeferredOps(TaksIOType ioType, const ObjectRange & objectRange)
-                :TaskIO(ioType, objectRange)
+TaskDeferredOps::TaskDeferredOps(IOTaksType ioType, const ObjectRange & objectRange)
+                :IOTask(ioType, objectRange)
 {
 }
 
@@ -33,7 +33,7 @@ void TaskDeferredOps::runPostAction(void)
 }
 
 /****************************************************/
-TaskDeferredOpsPrepared::TaskDeferredOpsPrepared(TaksIOType ioType, const ObjectRange & objectRange, DeferredOperationList & ops)
+TaskDeferredOpsPrepared::TaskDeferredOpsPrepared(IOTaksType ioType, const ObjectRange & objectRange, DeferredOperationList & ops)
                         :TaskDeferredOps(ioType, objectRange)
 {
 	//move into local ops

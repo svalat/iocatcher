@@ -10,7 +10,7 @@
 /****************************************************/
 #include "../../base/network/LibfabricConnection.hpp"
 #include "../core/DeferredOperation.hpp"
-#include "../worker/TaskIO.hpp"
+#include "../worker/IOTask.hpp"
 
 /****************************************************/
 namespace IOC
@@ -20,10 +20,10 @@ namespace IOC
 /**
  * Basic task to run operations
 **/
-class TaskDeferredOps : public TaskIO
+class TaskDeferredOps : public IOTask
 {
 	public:
-		TaskDeferredOps(TaksIOType ioType, const ObjectRange & objectRange);
+		TaskDeferredOps(IOTaksType ioType, const ObjectRange & objectRange);
 	protected:
 		virtual void runAction(void) override;
 		virtual void runPostAction(void) override;
@@ -39,7 +39,7 @@ class TaskDeferredOps : public TaskIO
 class TaskDeferredOpsPrepared : public TaskDeferredOps
 {
 	public:
-		TaskDeferredOpsPrepared(TaksIOType ioType, const ObjectRange & objectRange, DeferredOperationList & ops);
+		TaskDeferredOpsPrepared(IOTaksType ioType, const ObjectRange & objectRange, DeferredOperationList & ops);
 	protected:
 		virtual void runPrepare(void);
 };

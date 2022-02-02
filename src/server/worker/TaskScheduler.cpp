@@ -20,7 +20,7 @@ using namespace IOC;
  * @return True if the task can be immediately scheduled, false if it is posponed
  * waiting another task to finish.
 **/
-bool TaskScheduler::pushTask(TaskIO * task)
+bool TaskScheduler::pushTask(IOTask * task)
 {
 	//check
 	assert(task != NULL);
@@ -33,7 +33,7 @@ bool TaskScheduler::pushTask(TaskIO * task)
 }
 
 /****************************************************/
-bool TaskScheduler::canSchedulePreparedTask(TaskIO * task)
+bool TaskScheduler::canSchedulePreparedTask(IOTask * task)
 {
 	//check
 	assert(task != NULL);
@@ -50,7 +50,7 @@ bool TaskScheduler::canSchedulePreparedTask(TaskIO * task)
  * this might consume more memory. To be experimented to see if it is really
  * more efficient.
 **/
-bool TaskScheduler::canSchedule(TaskIO * task)
+bool TaskScheduler::canSchedule(IOTask * task)
 {
 	//vars
 	bool canSchedule = true;
@@ -98,7 +98,7 @@ bool TaskScheduler::canSchedule(TaskIO * task)
 }
 
 /****************************************************/
-void TaskScheduler::removeFromList(TaskIO * task)
+void TaskScheduler::removeFromList(IOTask * task)
 {
 	//check
 	assert(task != NULL);
@@ -119,7 +119,7 @@ void TaskScheduler::removeFromList(TaskIO * task)
 
 /****************************************************/
 //TODO otimization by giving multiple task to unregister in one batch
-void TaskScheduler::popFinishedTask(TaskVecor & toStart, TaskIO * task)
+void TaskScheduler::popFinishedTask(TaskVecor & toStart, IOTask * task)
 {
 	//check
 	assert(task != NULL);

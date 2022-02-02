@@ -24,7 +24,7 @@ TaskRunner::TaskRunner(int workers, LibfabricConnection * connection)
 }
 
 /****************************************************/
-void TaskRunner::pushTask(TaskIO * task)
+void TaskRunner::pushTask(IOTask * task)
 {
 	//check
 	assert(task != NULL);
@@ -39,7 +39,7 @@ void TaskRunner::pushTask(TaskIO * task)
 }
 
 /****************************************************/
-void TaskRunner::runPrepareAndSchedule(TaskIO * task)
+void TaskRunner::runPrepareAndSchedule(IOTask * task)
 {
 	//check
 	assert(task != NULL);
@@ -80,7 +80,7 @@ int TaskRunner::schedule(void)
 		count++;
 
 		//cast
-		TaskIO * ioTask = dynamic_cast<TaskIO*>(task);
+		IOTask * ioTask = dynamic_cast<IOTask*>(task);
 
 		//call end operation
 		ioTask->setTaskRunner(this);
@@ -108,7 +108,7 @@ void TaskRunner::waitAllFinished(void)
 }
 
 /****************************************************/
-void TaskRunner::terminateDetachedPost(TaskIO * task)
+void TaskRunner::terminateDetachedPost(IOTask * task)
 {
 	//look for schedule
 	TaskVecor toStart;
