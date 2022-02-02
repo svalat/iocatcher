@@ -211,7 +211,34 @@ digraph IOCATCHER
 		TaskObjectFlush [
 			label = "{TaskObjectFlush|\l|\l}"
 		]
+
+		TaskObjectWriteEager [
+			label = "{TaskObjectWriteEager|\l|\l}"
+		]
+
+		TaskObjectReadEager [
+			label = "{TaskObjectReadEager|\l|\l}"
+		]
+
+		TaskObjectReadWriteRdma [
+			label = "{TaskObjectReadWriteRdma|\l|\l}"
+		]
 	}
+
+	HubContainer [
+		label = "HubContainer"
+		shape = ellipse
+	]
+
+	HubContainerForHooks [
+		label = "HubContainerForHooks"
+		shape = ellipse
+	]
+
+	HubTask [
+		label = "HubTask"
+		shape = ellipse
+	]
 
 	subgraph cluster_worker {
 		label = "Worker implementation"
@@ -275,6 +302,9 @@ digraph IOCATCHER
 	IOTaskHub -> TaskDeferredOps
 	IOTaskHub -> TaskObjectCow
 	IOTaskHub -> TaskObjectFlush
+	IOTaskHub -> TaskObjectReadEager
+	IOTaskHub -> TaskObjectWriteEager
+	IOTaskHub -> TaskObjectReadWriteRdma
 	IOTask -> IOTaskHub
 	Task -> IOTask
 
@@ -306,13 +336,15 @@ digraph IOCATCHER
 	ioc_client_t -> TcpClient[arrowtail=diamond]
 	ioc_client_t -> LibfabricDomain[arrowtail=diamond]
 	ioc_client_t -> LibfabricConnection[arrowtail=diamond]
-	HookFlush -> Container[arrowtail=odiamond]
-	HookFlush -> TaskObjectFlush[arrowtail=odiamond]
-	HookObjectCreate -> Container[arrowtail=odiamond]
-	HookObjectCow -> Container[arrowtail=odiamond]
-	HookObjectCow -> TaskObjectCow[arrowtail=odiamond]
-	HookObjectRead -> Container[arrowtail=odiamond]
-	HookObjectWrite -> Container[arrowtail=odiamond]
+	HookFlush -> HubContainerForHooks[arrowtail=odiamond]
+	HookFlush -> HubTask[arrowtail=nonde]
+	HookObjectCreate -> HubContainerForHooks[arrowtail=odiamond]
+	HookObjectCow -> HubContainerForHooks[arrowtail=odiamond]
+	HookObjectCow -> HubTask[arrowtail=nonde]
+	HookObjectRead -> HubContainerForHooks[arrowtail=odiamond]
+	HookObjectRead -> HubTask[arrowtail=nonde]
+	HookObjectWrite -> HubContainerForHooks[arrowtail=odiamond]
+	HookObjectWrite -> HubTask[arrowtail=nonde]
 	HookObjectRead -> ServerStats[arrowtail=odiamond]
 	HookObjectWrite -> ServerStats[arrowtail=odiamond]
 	IORanges -> IORange[arrowtail=diamond]
@@ -326,4 +358,12 @@ digraph IOCATCHER
 	Worker -> Task[arrowtail=diamond]
 	IOTask -> IORanges[arrowtail=diamond]
 	IOTask -> ObjectRanges[arrowtail=diamond]
+	TaskObjectCow -> HubContainer[arrowtail=odiamond]
+	TaskObjectFlush -> HubContainer[arrowtail=odiamond]
+	TaskObjectReadEager -> HubContainer[arrowtail=odiamond]
+	TaskObjectWriteEager -> HubContainer[arrowtail=odiamond]
+	TaskObjectReadWriteRdma -> HubContainer[arrowtail=odiamond]
+	HubContainer  -> Container[arrowtail=odiamond]
+	HubContainerForHooks  -> Container[arrowtail=odiamond]
+	HubTask -> IOTaskHub[arrowtail=nonde]
 }
