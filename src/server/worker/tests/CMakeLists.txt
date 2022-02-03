@@ -15,6 +15,7 @@ set(TEST_NAMES TestSharedQueue
                TestIORanges
                TestObjectRanges
                TestIOTask
+               TestWorkerManager
 )
 
 ######################################################

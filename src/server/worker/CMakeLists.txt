@@ -9,6 +9,7 @@ set(SERVER_WORKER_SRC Worker.cpp
                       IORanges.cpp
                       ObjectRanges.cpp
                       IOTask.cpp
+                      WorkerManager.cpp
 )
 
 ######################################################
