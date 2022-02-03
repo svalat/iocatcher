@@ -192,6 +192,98 @@ digraph IOCATCHER
 		]
 	}
 
+	subgraph cluster_tasks {
+		label = "Worker tasks"
+
+		IOTaskHub [
+			label = "IOTaskHub"
+			shape = ellipse
+		]
+
+		TaskDeferredOps [
+			label = "{TaskDeferredOps|\l|\l}"
+		]
+
+		TaskObjectCow [
+			label = "{TaskObjectCow|\l|\l}"
+		]
+
+		TaskObjectFlush [
+			label = "{TaskObjectFlush|\l|\l}"
+		]
+
+		TaskObjectWriteEager [
+			label = "{TaskObjectWriteEager|\l|\l}"
+		]
+
+		TaskObjectReadEager [
+			label = "{TaskObjectReadEager|\l|\l}"
+		]
+
+		TaskObjectReadWriteRdma [
+			label = "{TaskObjectReadWriteRdma|\l|\l}"
+		]
+	}
+
+	HubContainer [
+		label = "HubContainer"
+		shape = ellipse
+	]
+
+	HubContainerForHooks [
+		label = "HubContainerForHooks"
+		shape = ellipse
+	]
+
+	HubTask [
+		label = "HubTask"
+		shape = ellipse
+	]
+
+	subgraph cluster_worker {
+		label = "Worker implementation"
+
+		IORange [
+			label = "{IORange|\l|\l}"
+		]
+
+		IORanges [
+			label = "{IORanges|\l|\l}"
+		]
+
+		ObjectRange [
+			label = "{ObjectRange|\l|\l}"
+		]
+
+		ObjectRanges [
+			label = "{ObjectRanges|\l|\l}"
+		]
+
+		Task [
+			label = "{Task|\l|\l}"
+		]
+
+		IOTask [
+			label = "{IOTask|\l|\l}"
+		]
+
+		TaskRunner [
+			label = "{TaskRunner|\l|\l}"
+		]
+
+		TaskScheduler [
+			label = "{TaskScheduler|\l|\l}"
+		]
+
+		Worker [
+			label = "{Worker|\l|\l}"
+		]
+
+		WorkerManager [
+			label = "{WorkerManager|\l|\l}"
+		]
+	}
+
 	//inheritance links
 	ServerHook -> HookFlush
 	ServerHook -> HookObjectCow
@@ -207,6 +299,14 @@ digraph IOCATCHER
 	MemoryBackend -> MemoryBackendNvdimm
 	MemoryBackend -> MemoryBackendCache
 	MemoryBackend -> MemoryBackendRoundRobin
+	IOTaskHub -> TaskDeferredOps
+	IOTaskHub -> TaskObjectCow
+	IOTaskHub -> TaskObjectFlush
+	IOTaskHub -> TaskObjectReadEager
+	IOTaskHub -> TaskObjectWriteEager
+	IOTaskHub -> TaskObjectReadWriteRdma
+	IOTask -> IOTaskHub
+	Task -> IOTask
 
 	//composition
 	LibfabricHandler -> LibfabricDomain[arrowtail=diamond]
@@ -217,6 +317,7 @@ digraph IOCATCHER
 	Server -> LibfabricHandler[arrowtail=diamond]
 	Server -> ServerStats[arrowtail=diamond]
 	Server -> Backends[arrowtail=diamond]
+	Server -> TaskRunner[arrowtail=diamond]
 	Backends -> StorageBackend[arrowtail=diamond]
 	Backends -> MemoryBackend[arrowtail=diamond]
 	LibfabricConnection -> ClientRegistry[arrowtail=diamond]
@@ -235,11 +336,34 @@ digraph IOCATCHER
 	ioc_client_t -> TcpClient[arrowtail=diamond]
 	ioc_client_t -> LibfabricDomain[arrowtail=diamond]
 	ioc_client_t -> LibfabricConnection[arrowtail=diamond]
-	HookFlush -> Container[arrowtail=odiamond]
-	HookObjectCreate -> Container[arrowtail=odiamond]
-	HookObjectCow -> Container[arrowtail=odiamond]
-	HookObjectRead -> Container[arrowtail=odiamond]
-	HookObjectWrite -> Container[arrowtail=odiamond]
+	HookFlush -> HubContainerForHooks[arrowtail=odiamond]
+	HookFlush -> HubTask[arrowtail=nonde]
+	HookObjectCreate -> HubContainerForHooks[arrowtail=odiamond]
+	HookObjectCow -> HubContainerForHooks[arrowtail=odiamond]
+	HookObjectCow -> HubTask[arrowtail=nonde]
+	HookObjectRead -> HubContainerForHooks[arrowtail=odiamond]
+	HookObjectRead -> HubTask[arrowtail=nonde]
+	HookObjectWrite -> HubContainerForHooks[arrowtail=odiamond]
+	HookObjectWrite -> HubTask[arrowtail=nonde]
 	HookObjectRead -> ServerStats[arrowtail=odiamond]
 	HookObjectWrite -> ServerStats[arrowtail=odiamond]
+	IORanges -> IORange[arrowtail=diamond]
+	ObjectRange -> ObjectId[arrowtail=diamond]
+	ObjectRange -> IORange[arrowtail=diamond]
+	ObjectRanges -> ObjectRange[arrowtail=diamond]
+	WorkerManager -> Worker[arrowtail=diamond]
+	TaskScheduler -> IOTask[arrowtail=odiamond]
+	TaskRunner -> WorkerManager[arrowtail=diamond]
+	TaskRunner -> TaskScheduler[arrowtail=diamond]
+	Worker -> Task[arrowtail=odiamond]
+	IOTask -> IORanges[arrowtail=diamond]
+	IOTask -> ObjectRanges[arrowtail=diamond]
+	TaskObjectCow -> HubContainer[arrowtail=odiamond]
+	TaskObjectFlush -> HubContainer[arrowtail=odiamond]
+	TaskObjectReadEager -> HubContainer[arrowtail=odiamond]
+	TaskObjectWriteEager -> HubContainer[arrowtail=odiamond]
+	TaskObjectReadWriteRdma -> HubContainer[arrowtail=odiamond]
+	HubContainer  -> Container[arrowtail=odiamond]
+	HubContainerForHooks  -> Container[arrowtail=odiamond]
+	HubTask -> IOTaskHub[arrowtail=nonde]
 }
