@@ -19,6 +19,7 @@
 #include "../../base/network/LibfabricDomain.hpp"
 #include "../../base/network/LibfabricConnection.hpp"
 #include "../../base/network/TcpServer.hpp"
+#include "../worker/TaskRunner.hpp"
 
 /****************************************************/
 namespace IOC
@@ -72,6 +73,8 @@ class Server
 		StorageBackend * storageBackend;
 		/** Keep track of the memory backend in use. **/
 		MemoryBackend * memoryBackend;
+		/** Handle the workers and the tasks to be runned and scheduled. **/
+		TaskRunner * taskRunner;
 };
 
 }

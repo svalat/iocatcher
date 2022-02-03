@@ -26,18 +26,19 @@ TEST(TestConfig, options)
 		"--no-auth",
 		"--verbose=core",
 		"--merofile=./mero.rc",
-		"127.0.0.1",
-		"\0"
+		"--workers=8",
+		"127.0.0.1"
 	};
 
 	//parse
-	config.parseArgs(8, argv);
+	config.parseArgs(9, argv);
 
 	//check status
 	EXPECT_EQ(2, config.nvdimmMountPath.size());
 	EXPECT_EQ("/path1", config.nvdimmMountPath[0]);
 	EXPECT_EQ("/path2", config.nvdimmMountPath[1]);
 	EXPECT_EQ("./mero.rc", config.meroRcFile);
+	EXPECT_EQ(8, config.workers);
 	EXPECT_FALSE(config.consistencyCheck);
 	EXPECT_TRUE(config.activePolling);
 	EXPECT_FALSE(config.clientAuth);
@@ -51,4 +52,5 @@ TEST(TestConfig, initForUnitTest)
 	config.initForUnitTests();
 	EXPECT_TRUE(config.activePolling);
 	EXPECT_EQ("127.0.0.1", config.listenIP);
+	EXPECT_EQ(0, config.workers);
 }

@@ -45,6 +45,7 @@ ServerStats::ServerStats(void)
  * message reception on the libfabric connection.
  * @param config Pointer to the config object.
  * @param port Port to listen on (libfabric port which is tcp port + 1).
+ * @param workers The number of workers to use, can be 0 for none.
 **/
 Server::Server(const Config * config, const std::string & port)
 {
@@ -80,6 +81,9 @@ Server::Server(const Config * config, const std::string & port)
 	//create container
 	this->container = new Container(storageBackend, memoryBackend, 8*1024*1024);
 
+	//spawn the worker threads
+	this->taskRunner = new TaskRunner(config->workers, this->connection);
+
 	//register hooks
 	this->connection->registerHook(IOC_LF_MSG_PING, new HookPingPong(this->domain));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_FLUSH, new HookFlush(this->container));
@@ -114,12 +118,19 @@ Server::Server(const Config * config, const std::string & port)
 **/
 Server::~Server(void)
 {
+	//stop the server
 	this->stop();
+
+	//wait all tasks to finish
+	this->taskRunner->waitAllFinished();
+
+	//delete all
 	delete this->container;
 	delete this->memoryBackend;
 	delete this->connection;
 	delete this->domain;
 	delete this->tcpServer;
+	delete this->taskRunner;
 }
 
 /****************************************************/
@@ -206,9 +217,19 @@ void Server::setOnClientConnect(std::function<void(int id)> handler)
 **/
 void Server::poll(void)
 {
+	//start running
 	this->pollRunning = true;
-	while(this->pollRunning)
+
+	//while running
+	while(this->pollRunning) {
+		//poll network
 		this->connection->poll(false);
+
+		//look on the tasks to be finished
+		this->taskRunner->schedule();
+	}
+
+	//restart as running to wakeup the wait loop in stop()
 	this->pollRunning = true;
 }
 
