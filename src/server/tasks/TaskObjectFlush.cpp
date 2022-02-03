@@ -51,7 +51,7 @@ void TaskObjectFlush::runPrepare(void)
 
 	//build flush operations
 	Object & object = this->container->getObject(this->flushInfos.objectId);
-	object.flush(this->ops, this->flushInfos.offset, this->flushInfos.size);
+	this->ops = object.genFlushOps(this->flushInfos.offset, this->flushInfos.size);
 
 	//build me ranges for dependency checking
 	//REMARK: we need to check the buffer addresses due to the COW support which might

@@ -291,8 +291,9 @@ ObjectSegmentDescr Object::loadSegment(DeferredOperationList & deferredOps, size
  * @param size Size of the range to flus. Use 0 to flush all.
  * @todo: handle non fully overlapping range.
 **/
-void Object::flush(DeferredOperationList & deferredOps, size_t offset, size_t size)
+DeferredOperationList Object::genFlushOps(size_t offset, size_t size)
 {
+	DeferredOperationList deferredOps;
 	DeferredOperation op(DEFEERRED_WRITE);
 	op.setDitryAction(DEFFERED_DIRTY_SET_TRUE);
 	for (auto & it : this->segmentMap) {
@@ -305,6 +306,8 @@ void Object::flush(DeferredOperationList & deferredOps, size_t offset, size_t si
 			}
 		}
 	}
+
+	return deferredOps;
 }
 
 /****************************************************/

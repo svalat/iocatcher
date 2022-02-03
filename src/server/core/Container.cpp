@@ -216,8 +216,7 @@ void Container::flushAllByTasks(TaskRunner * runner)
 	for (auto & it : this->objects) {
 		//flush object
 		Object & object = *(it.second);
-		DeferredOperationList ops;
-		object.flush(ops, 0, 0);
+		DeferredOperationList ops = object.genFlushOps(0, 0);
 
 		//build op range
 		ObjectRange objectRange(object.getObjectId(), 0, SIZE_MAX);

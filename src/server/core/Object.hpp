@@ -82,7 +82,7 @@ class Object
 		bool checkUniq(size_t offset, size_t size);
 		static iovec * buildIovec(ObjectSegmentList & segments, size_t offset, size_t size);
 		void markDirty(size_t base, size_t size);
-		void flush(DeferredOperationList & deferredOps, size_t offset, size_t size);
+		DeferredOperationList genFlushOps(size_t offset, size_t size);
 		int create(void);
 		void forceAlignement(size_t alignment);
 		ConsistencyTracker & getConsistencyTracker(void);
