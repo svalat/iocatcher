@@ -42,7 +42,7 @@ Object::Object(StorageBackend * storageBackend, MemoryBackend * memBack, const O
 /**
  * @return Return the object ID.
 **/
-const ObjectId & Object::getObjectId(void)
+const ObjectId & Object::getObjectId(void) const
 {
 	return this->objectId;
 }
@@ -133,7 +133,7 @@ bool Object::isFullyOverlapped(size_t segOffset, size_t segSize, size_t reqOffse
 bool Object::getBuffers(ObjectSegmentList & segments, size_t base, size_t size, ObjectAccessMode accessMode, bool load, bool isForWriteOp)
 {
 	//get
-	DeferredOperationList deferredOps;
+	DeferredOperationVector deferredOps;
 	bool res = this->getBuffers(deferredOps, segments, base, size, accessMode, load, isForWriteOp);
 
 	//check
@@ -160,7 +160,7 @@ bool Object::getBuffers(ObjectSegmentList & segments, size_t base, size_t size, 
  * if due to alignement the caller will not write the full segment).
  * @return True if OK, false in case it fails to read content while creating the segments.
 **/
-bool Object::getBuffers(DeferredOperationList & deferredOps, ObjectSegmentList & segments, size_t base, size_t size, ObjectAccessMode accessMode, bool load, bool isForWriteOp)
+bool Object::getBuffers(DeferredOperationVector & deferredOps, ObjectSegmentList & segments, size_t base, size_t size, ObjectAccessMode accessMode, bool load, bool isForWriteOp)
 {
 	//keep orig range
 	size_t origBase = base;
@@ -248,7 +248,7 @@ bool Object::getBuffers(DeferredOperationList & deferredOps, ObjectSegmentList &
  * do not fail if the load operation fails.
  * @return The loaded object segment.
 **/
-ObjectSegmentDescr Object::loadSegment(DeferredOperationList & deferredOps, size_t offset, size_t size, bool load, bool acceptLoadFail)
+ObjectSegmentDescr Object::loadSegment(DeferredOperationVector & deferredOps, size_t offset, size_t size, bool load, bool acceptLoadFail)
 {
 	//allocate memory
 	char* buffer = (char*)this->memoryBackend->allocate(size);
@@ -291,9 +291,9 @@ ObjectSegmentDescr Object::loadSegment(DeferredOperationList & deferredOps, size
  * @param size Size of the range to flus. Use 0 to flush all.
  * @todo: handle non fully overlapping range.
 **/
-DeferredOperationList Object::genFlushOps(size_t offset, size_t size)
+DeferredOperationVector Object::genFlushOps(size_t offset, size_t size)
 {
-	DeferredOperationList deferredOps;
+	DeferredOperationVector deferredOps;
 	DeferredOperation op(DEFEERRED_WRITE);
 	op.setDitryAction(DEFFERED_DIRTY_SET_TRUE);
 	for (auto & it : this->segmentMap) {
@@ -692,12 +692,21 @@ ObjectSegment * Object::getObjectSegment(size_t offset)
 }
 
 /****************************************************/
+/**
+ * Compoare two object IDs.
+**/
 bool IOC::operator==(const ObjectId & objId1, const ObjectId & objId2)
 {
 	return objId1.low == objId2.low && objId1.high == objId2.high;
 }
 
 /****************************************************/
+/**
+ * Build the memory ranges used to protect a task in the task scheduler
+ * for an operation which will impact the given range.
+ * @param offset Define the offset from which the operation will start from.
+ * @param size Define the size of the range to be impacted by the operation.
+**/
 IORanges Object::getMemRanges(size_t offset, size_t size)
 {
 	//build selection range

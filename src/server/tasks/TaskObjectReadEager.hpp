@@ -20,12 +20,12 @@ namespace IOC
 
 /****************************************************/
 /**
- * Implement the server side handling of ping-pong operations.
+ * Taskify the object read eager operation.
 **/
 class TaskObjectReadEager : public TaskDeferredOps
 {
 	public:
-		TaskObjectReadEager(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite);
+		TaskObjectReadEager(LibfabricConnection * connection, uint64_t lfClientId, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite);
 	protected:
 		virtual void runPostAction(void) override;
 		virtual void runAction(void) override;
@@ -33,10 +33,11 @@ class TaskObjectReadEager : public TaskDeferredOps
 	private:
 		void performMemcpyOps(void);
 	private:
-		LibfabricConnection * connection;
-		LibfabricClientRequest request;
+		/** Keep track of the container to be used to find the object. **/
 		Container * container;
+		/** Request informations. **/
 		LibfabricObjReadWriteInfos objReadWrite;
+		/** Track the status to know what to respond. **/
 		bool status;
 		ObjectSegmentList segments;
 		ServerStats * stats;

@@ -164,6 +164,10 @@ bool ObjectSegment::isCow(void)
 }
 
 /****************************************************/
+/**
+ * Build in IO range from the given object segment based on the offset in the object
+ * and the size of the segment.
+**/
 IORange ObjectSegment::getRange(void)
 {
 	IORange range(this->offset, this->getSize());

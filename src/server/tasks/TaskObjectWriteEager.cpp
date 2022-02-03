@@ -16,7 +16,12 @@ using namespace IOC;
 
 /****************************************************/
 /**
- * @todo optimisze not using SIZE_MAX if the flush range is smaller !
+ * Constructor of the eager write task.
+ * @param connection Define the connection to be used to send the response.
+ * @param request Define the request containing the data and to be temrinated when the operation has been performed.
+ * @param container Define the container used to find the object.
+ * @param stats Define the stats structure to track the bandwidth.
+ * @param objReadWrite Define the request informations.
 **/
 TaskObjectWriteEager::TaskObjectWriteEager(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite)
                 :TaskDeferredOps(IO_TYPE_WRITE, ObjectRange(objReadWrite.objectId, objReadWrite.offset, objReadWrite.size))
@@ -35,6 +40,12 @@ TaskObjectWriteEager::TaskObjectWriteEager(LibfabricConnection * connection, Lib
 }
 
 /****************************************************/
+/**
+ * Prepare the operation by allocating the required new buffers if needed and
+ * build the deferred fetch operations.
+ * @todo If there is no fetch operations and a small amount of data to copy we should
+ * mark the task as immediate.
+**/
 void TaskObjectWriteEager::runPrepare(void)
 {
 	//debug
@@ -43,9 +54,15 @@ void TaskObjectWriteEager::runPrepare(void)
 	//get buffers from object
 	Object & object = this->container->getObject(objReadWrite.objectId);
 	this->status = object.getBuffers(this->ops, this->segments, objReadWrite.offset, objReadWrite.size, ACCESS_WRITE, true, true);
+
+	//protect the memory ranges
+	this->setMemRanges(this->ops.buildMemRanges());
 }
 
 /****************************************************/
+/**
+ * Run the operations and perform the memory copies.
+**/
 void TaskObjectWriteEager::runAction(void)
 {
 	//debug
@@ -59,6 +76,10 @@ void TaskObjectWriteEager::runAction(void)
 }
 
 /****************************************************/
+/**
+ * As post action we mark the object as dirty, respond to the client and close the
+ * request.
+**/
 void TaskObjectWriteEager::runPostAction(void)
 {
 	//debug
@@ -82,6 +103,7 @@ void TaskObjectWriteEager::runPostAction(void)
 
 /****************************************************/
 /**
+ * Perform the memory copies.
  * @todo handle thread safety on stat increment
 **/
 void TaskObjectWriteEager::performMemcpyOps(void)

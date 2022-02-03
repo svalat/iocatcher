@@ -16,11 +16,16 @@ using namespace IOC;
 
 /****************************************************/
 /**
- * @todo optimisze not using SIZE_MAX if the flush range is smaller !
+ * Constructor of the RDMA task.
+ * @param connection Define the connection to be used to send the response and perform the RDMA operations.
+ * @param lfClientId Define to who we need to respond and perform the RDMA operations.
+ * @param container Define the container to be used to find the object.
+ * @param stats To update the bandwidth statistics.
+ * @param objReadWrite Informations from the request.
+ * @param mode Define the exchange mode (read or write)
 **/
-TaskObjectReadWriteRdma::TaskObjectReadWriteRdma(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite, ObjectAccessMode mode)
+TaskObjectReadWriteRdma::TaskObjectReadWriteRdma(LibfabricConnection * connection, uint64_t lfClientId, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite, ObjectAccessMode mode)
                 :TaskDeferredOps((mode==ACCESS_WRITE?IO_TYPE_WRITE:IO_TYPE_READ), ObjectRange(objReadWrite.objectId, objReadWrite.offset, objReadWrite.size))
-                ,request(request)
                 ,objReadWrite(objReadWrite)
 {
 	//check
@@ -33,9 +38,17 @@ TaskObjectReadWriteRdma::TaskObjectReadWriteRdma(LibfabricConnection * connectio
 	this->container = container;
 	this->stats = stats;
 	this->mode = mode;
+	this->lfClientId = lfClientId;
 }
 
 /****************************************************/
+/**
+ * Run the prepare phase by allocating the required buffers and building the eventuel
+ * fetch deferred operations.
+ * The runAction() operation will perform the reading fetch calls possibly in a thread.
+ *
+ * @todo Mark as immediate if the amount of data to read is small or 0.
+**/
 void TaskObjectReadWriteRdma::runPrepare(void)
 {
 	//debug
@@ -49,9 +62,20 @@ void TaskObjectReadWriteRdma::runPrepare(void)
 		this->status = object.getBuffers(this->ops, this->segments, objReadWrite.offset, objReadWrite.size, ACCESS_READ, true, false);
 	else
 		IOC_FATAL_ARG("Invalid access mode to get buffers : %1").arg(this->mode).end();
+
+	//protect the memory ranges
+	this->setMemRanges(this->ops.buildMemRanges());
 }
 
 /****************************************************/
+/**
+ * As a post action we trigger the rdma operations.
+ * As we need to wait those asynchronous operations to finish we need to mark
+ * the task as detached.
+ * 
+ * If we had a failure during the fetch operations we immediatly send
+ * a response.
+**/
 void TaskObjectReadWriteRdma::runPostAction(void)
 {
 	//debug
@@ -66,12 +90,15 @@ void TaskObjectReadWriteRdma::runPostAction(void)
 			object.markDirty(objReadWrite.offset, objReadWrite.size);
 		}
 	} else {
-		connection->sendResponse(IOC_LF_MSG_OBJ_READ_WRITE_ACK, request.lfClientId, -1);
+		//there was a failure.
+		connection->sendResponse(IOC_LF_MSG_OBJ_READ_WRITE_ACK, this->lfClientId, -1);
 	}
 }
 
 /****************************************************/
 /**
+ * Make the call the the RDMA operations. As it is done in runPostAction() it is
+ * called from the networking thread so we have access to connection.
  * @todo handle thread safety on stat increment
 **/
 void TaskObjectReadWriteRdma::performRdmaOps(void)
@@ -100,7 +127,7 @@ void TaskObjectReadWriteRdma::performRdmaOps(void)
 		//emit rdma write vec & implement callback
 		LibfabricAddr addr = objReadWrite.iov.addr + offset;
 		uint64_t key = objReadWrite.iov.key;
-		this->rdmaOpv(request.lfClientId, iov + i, cnt, addr, key, [ops, size, this](void){
+		this->rdmaOpv(this->lfClientId, iov + i, cnt, addr, key, [ops, size, this](void){
 			//decrement
 			(*ops)--;
 
@@ -115,7 +142,7 @@ void TaskObjectReadWriteRdma::performRdmaOps(void)
 				IOC_DEBUG_ARG("task:obj:rw:rdma", "%1.sendResponse(%2)").arg(this).arg(Serializer::stringify(objReadWrite)).end();
 
 				//send response
-				this->connection->sendResponse(IOC_LF_MSG_OBJ_READ_WRITE_ACK, request.lfClientId, 0);
+				this->connection->sendResponse(IOC_LF_MSG_OBJ_READ_WRITE_ACK, this->lfClientId, 0);
 
 				//clean
 				delete ops;
@@ -137,6 +164,9 @@ void TaskObjectReadWriteRdma::performRdmaOps(void)
 }
 
 /****************************************************/
+/**
+ * Switch between read and write to factorize the code of performRdmaOps().
+**/
 void TaskObjectReadWriteRdma::rdmaOpv(int destinationEpId, struct iovec * iov, int count, LibfabricAddr remoteAddr, uint64_t remoteKey, std::function<LibfabricActionResult(void)> postAction)
 {
 	//REMARK, for a write op request, we perfrom a rdmaRead to fetch the data from the client to the server.

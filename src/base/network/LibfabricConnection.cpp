@@ -1240,6 +1240,12 @@ void LibfabricConnection::sendResponse(LibfabricMessageType msgType, uint64_t lf
 }
 
 /****************************************************/
+/**
+ * Constructor of a pre-built response.
+ * @param msgType The type of message to be used when sending the response.
+ * @param lfClientId The client ID to which we want to send the message.
+ * @param connection The connection to be used to allocate the buffer and send the message.
+**/
 LibfabricPreBuiltResponse::LibfabricPreBuiltResponse(LibfabricMessageType msgType, uint64_t lfClientId, LibfabricConnection * connection)
 {
 	this->connection = connection;
@@ -1251,6 +1257,9 @@ LibfabricPreBuiltResponse::LibfabricPreBuiltResponse(LibfabricMessageType msgTyp
 }
 
 /****************************************************/
+/**
+ * Destructor, it delete the potential fragments if there is some.
+**/
 LibfabricPreBuiltResponse::~LibfabricPreBuiltResponse(void)
 {
 	if (this->response.optionalDataFragments != NULL)
@@ -1258,12 +1267,23 @@ LibfabricPreBuiltResponse::~LibfabricPreBuiltResponse(void)
 }
 
 /****************************************************/
+/**
+ * Define the status of the response.
+ * To be called before calling build() which serialize the response.
+**/
 void LibfabricPreBuiltResponse::setStatus(int32_t status)
 {
 	this->response.status = status;
 }
 
 /****************************************************/
+/**
+ * Attach a data buffer to be pasted in the response message.
+ * To be called before calling build() which serialize the response.
+ * Remark the buffer will not be deleted by this class.
+ * @param data Pointer to the buffer.
+ * @param size Size of the data.
+**/
 void LibfabricPreBuiltResponse::setData(const void * data, size_t size)
 {
 	//check
@@ -1277,6 +1297,13 @@ void LibfabricPreBuiltResponse::setData(const void * data, size_t size)
 }
 
 /****************************************************/
+/**
+ * Attach a list of fragments (buffers) to be pasted in the response message.
+ * To be called before calling build() which serialize the response.
+ * Remark the buffer will be deleted by this class.
+ * @param buffers Array of buffer descriptors to aggregate.
+ * @param cntBuffers Number of buffers in the array.
+**/
 void LibfabricPreBuiltResponse::setBuffers(const LibfabricBuffer * buffers, size_t cntBuffers, size_t totalSize)
 {
 	//check
@@ -1291,6 +1318,9 @@ void LibfabricPreBuiltResponse::setBuffers(const LibfabricBuffer * buffers, size
 }
 
 /****************************************************/
+/**
+ * To be called to effectively serialize the response in the send buffer.
+**/
 void LibfabricPreBuiltResponse::build(void)
 {
 	//get a buffer
@@ -1316,8 +1346,14 @@ void LibfabricPreBuiltResponse::build(void)
 }
 
 /****************************************************/
+/**
+ * Once we have called build() we can now send the message on the wire.
+**/
 void LibfabricPreBuiltResponse::send(void)
 {
+	//check
+	assert(this->msgSize != 0);
+
 	//build post action
 	LibfabricPostActionNop * postAction = new LibfabricPostActionNop(LF_WAIT_LOOP_UNBLOCK);
 

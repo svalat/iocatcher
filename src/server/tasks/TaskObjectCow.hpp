@@ -19,21 +19,26 @@ namespace IOC
 
 /****************************************************/
 /**
- * Implement the server side handling of ping-pong operations.
+ * Implement the tasking for the COW operation to be created in the HookObjectCow.
 **/
 class TaskObjectCow : public IOTask
 {
 	public:
-		TaskObjectCow(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, LibfabricObjectCow objCow);
+		TaskObjectCow(LibfabricConnection * connection, uint64_t lfClientId, Container * container, LibfabricObjectCow objCow);
 	protected:
 		virtual void runPostAction(void) override;
 		virtual void runAction(void) override;
 		virtual void runPrepare(void) override;
 	private:
+		/** Keep track of the connection to know how to send the final response when done. **/
 		LibfabricConnection * connection;
-		LibfabricClientRequest request;
+		/** Keep track of the client ID to respond to. **/
+		uint64_t lfClientId;
+		/** Keep track of the container to find the object we apply to. **/
 		Container * container;
+		/** Keep track of the deserialized cow message informations. **/
 		LibfabricObjectCow objCow;
+		/** Keep track of the final status to be returned by the response to the client. **/
 		int32_t res;
 };
 

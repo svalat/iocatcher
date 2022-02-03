@@ -25,7 +25,7 @@ namespace IOC
 class TaskObjectReadWriteRdma : public TaskDeferredOps
 {
 	public:
-		TaskObjectReadWriteRdma(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite, ObjectAccessMode mode);
+		TaskObjectReadWriteRdma(LibfabricConnection * connection, uint64_t lfClientId, Container * container, ServerStats * stats, LibfabricObjReadWriteInfos objReadWrite, ObjectAccessMode mode);
 	protected:
 		virtual void runPostAction(void) override;
 		virtual void runPrepare(void) override;
@@ -34,7 +34,7 @@ class TaskObjectReadWriteRdma : public TaskDeferredOps
 		void rdmaOpv(int destinationEpId, struct iovec * iov, int count, LibfabricAddr remoteAddr, uint64_t remoteKey, std::function<LibfabricActionResult(void)> postAction);
 	private:
 		LibfabricConnection * connection;
-		LibfabricClientRequest request;
+		uint64_t lfClientId;
 		Container * container;
 		LibfabricObjReadWriteInfos objReadWrite;
 		bool status;

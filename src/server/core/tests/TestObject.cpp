@@ -265,7 +265,7 @@ TEST(TestObject, data_flush)
 	EXPECT_EQ(1, lst.size());
 
 	//nothing to flush
-	DeferredOperationList ops = object.genFlushOps(0, 0);
+	DeferredOperationVector ops = object.genFlushOps(0, 0);
 	ops.runAll();
 
 	//mark dirty
@@ -277,7 +277,7 @@ TEST(TestObject, data_flush)
 		.WillOnce(Return(500));
 
 	//flush
-	DeferredOperationList ops2 = object.genFlushOps(0, 0);
+	DeferredOperationVector ops2 = object.genFlushOps(0, 0);
 	ops2.runAll();
 }
 

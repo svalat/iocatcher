@@ -18,7 +18,7 @@ namespace IOC
 
 /****************************************************/
 /**
- * Basic task to run operations
+ * Basic task to run deferred operations to be performed in the worker threads.
 **/
 class TaskDeferredOps : public IOTask
 {
@@ -28,18 +28,24 @@ class TaskDeferredOps : public IOTask
 		virtual void runAction(void) override;
 		virtual void runPostAction(void) override;
 	protected:
-		DeferredOperationList ops;
+		/** List of operations to be performed. **/
+		DeferredOperationVector ops;
+		/**
+		 * Result containing either the sum of the operation sizes or 
+		 * -1 if we encountered an error. 
+		**/
 		ssize_t ret;
 };
 
 /****************************************************/
 /**
- * Basic task to run operations already prepared
+ * Basic task to run operations already prepared meaning we already know the
+ * addresses on which it will apply and we are sure we do not change them.
 **/
 class TaskDeferredOpsPrepared : public TaskDeferredOps
 {
 	public:
-		TaskDeferredOpsPrepared(IOTaksType ioType, const ObjectRange & objectRange, DeferredOperationList & ops);
+		TaskDeferredOpsPrepared(IOTaksType ioType, const ObjectRange & objectRange, DeferredOperationVector & ops);
 	protected:
 		virtual void runPrepare(void);
 };

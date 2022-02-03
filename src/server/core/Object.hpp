@@ -73,16 +73,16 @@ class Object
 {
 	public:
 		Object(StorageBackend * backend, MemoryBackend * memBackend, const ObjectId & objectId, size_t alignement = 0);
-		const ObjectId & getObjectId(void);
+		const ObjectId & getObjectId(void) const;
 		char * getUniqBuffer(size_t base, size_t size, ObjectAccessMode accessMode, bool load = true);
 		bool getBuffers(ObjectSegmentList & segments, size_t base, size_t size, ObjectAccessMode accessMode, bool load = true, bool isForWriteOp = false);
-		bool getBuffers(DeferredOperationList & deferredOps, ObjectSegmentList & segments, size_t base, size_t size, ObjectAccessMode accessMode, bool load = true, bool isForWriteOp = false);
+		bool getBuffers(DeferredOperationVector & deferredOps, ObjectSegmentList & segments, size_t base, size_t size, ObjectAccessMode accessMode, bool load = true, bool isForWriteOp = false);
 		void fillBuffer(size_t offset, size_t size, char value);
 		bool checkBuffer(size_t offset, size_t size, char value);
 		bool checkUniq(size_t offset, size_t size);
 		static iovec * buildIovec(ObjectSegmentList & segments, size_t offset, size_t size);
 		void markDirty(size_t base, size_t size);
-		DeferredOperationList genFlushOps(size_t offset, size_t size);
+		DeferredOperationVector genFlushOps(size_t offset, size_t size);
 		int create(void);
 		void forceAlignement(size_t alignment);
 		ConsistencyTracker & getConsistencyTracker(void);
@@ -94,7 +94,7 @@ class Object
 		IORanges getMemRanges(size_t offset, size_t size);
 	private:
 		void rangeCopyOnWriteSegment(ObjectSegment & origSegment, size_t offset, size_t size);
-		ObjectSegmentDescr loadSegment(DeferredOperationList & deferredOps, size_t offset, size_t size, bool load = true, bool acceptLoadFail = false);
+		ObjectSegmentDescr loadSegment(DeferredOperationVector & deferredOps, size_t offset, size_t size, bool load = true, bool acceptLoadFail = false);
 		ssize_t pwrite(void * buffer, size_t size, size_t offset);
 		ssize_t pread(void * buffer, size_t size, size_t offset);
 		bool isFullyOverlapped(size_t segOffset, size_t segSize, size_t reqOffset, size_t reqSize);

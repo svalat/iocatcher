@@ -43,8 +43,11 @@ LibfabricActionResult HookFlush::onMessage(LibfabricConnection * connection, Lib
 		.end();
 
 	//build task to delegate to a worker thread
-	IOTask * task = new TaskObjectFlush(connection, request, this->container, objFlush);
+	IOTask * task = new TaskObjectFlush(connection, request.lfClientId, this->container, objFlush);
 	this->taskRunner->pushTask(task);
+
+	//terminate the client request
+	request.terminate();
 
 	//ok
 	return LF_WAIT_LOOP_KEEP_WAITING;

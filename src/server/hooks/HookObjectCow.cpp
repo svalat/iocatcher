@@ -40,10 +40,13 @@ LibfabricActionResult HookObjectCow::onMessage(LibfabricConnection * connection,
 		.end();
 
 	//build task
-	TaskObjectCow * taskCow = new TaskObjectCow(connection, request, container, objCow);
+	TaskObjectCow * taskCow = new TaskObjectCow(connection, request.lfClientId, container, objCow);
 
 	//schedule the task
 	this->taskRunner->pushTask(taskCow);
+
+	//republish
+	request.terminate();
 
 	//ret
 	return LF_WAIT_LOOP_KEEP_WAITING;

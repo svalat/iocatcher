@@ -19,19 +19,23 @@ namespace IOC
 
 /****************************************************/
 /**
- * Implement the server side handling of ping-pong operations.
+ * Taskify the flush operation to be performed in a worker thread.
 **/
 class TaskObjectFlush : public TaskDeferredOps
 {
 	public:
-		TaskObjectFlush(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, LibfabricObjFlushInfos flushInfos);
+		TaskObjectFlush(LibfabricConnection * connection, uint64_t lfClientId, Container * container, LibfabricObjFlushInfos flushInfos);
 	protected:
 		virtual void runPostAction(void) override;
 		virtual void runPrepare(void) override;
 	private:
+		/** Keep track of the connection to be used to send the response. **/
 		LibfabricConnection * connection;
-		LibfabricClientRequest request;
+		/** Define the client waiting the response. **/
+		uint64_t lfClientId;
+		/** To find the required object during the prepare phase. **/
 		Container * container;
+		/** Contain the client request informations. **/
 		LibfabricObjFlushInfos flushInfos;
 };
 

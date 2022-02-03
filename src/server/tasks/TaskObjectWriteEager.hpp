@@ -33,12 +33,19 @@ class TaskObjectWriteEager : public TaskDeferredOps
 	private:
 		void performMemcpyOps(void);
 	private:
+		/** Keep track of the connection to be able to send the response. **/
 		LibfabricConnection * connection;
+		/** Keep track of the request containing the data to write and to terminate it when the operation is finished. **/
 		LibfabricClientRequest request;
+		/** Keep track of container to know how to find the object. **/
 		Container * container;
+		/** Unpacked informations requested by the client. **/
 		LibfabricObjReadWriteInfos objReadWrite;
+		/** Track the status to know what to respond. **/
 		bool status;
+		/** List of segments to write on. **/
 		ObjectSegmentList segments;
+		/** To update the bandwidth stats. **/
 		ServerStats * stats;
 };
 

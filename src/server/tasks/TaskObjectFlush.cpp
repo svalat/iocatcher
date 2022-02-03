@@ -17,9 +17,8 @@ using namespace IOC;
 /**
  * @todo optimisze not using SIZE_MAX if the flush range is smaller !
 **/
-TaskObjectFlush::TaskObjectFlush(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, LibfabricObjFlushInfos flushInfos)
+TaskObjectFlush::TaskObjectFlush(LibfabricConnection * connection, uint64_t lfClientId, Container * container, LibfabricObjFlushInfos flushInfos)
                 :TaskDeferredOps(IO_TYPE_READ, ObjectRange(flushInfos.objectId, 0, SIZE_MAX))
-                ,request(request)
                 ,flushInfos(flushInfos)
 {
 	//check
@@ -28,22 +27,13 @@ TaskObjectFlush::TaskObjectFlush(LibfabricConnection * connection, LibfabricClie
 	//set
 	this->connection = connection;
 	this->container = container;
+	this->lfClientId = lfClientId;
 }
 
 /****************************************************/
-void TaskObjectFlush::runPostAction(void)
-{
-	//debug
-	IOC_DEBUG_ARG("task:obj:flush", "%1.runPostAction(%2)").arg(this).arg(Serializer::stringify(flushInfos)).end();
-
-	//send response
-	connection->sendResponse(IOC_LF_MSG_OBJ_FLUSH_ACK, request.lfClientId, ret);
-
-	//republish
-	request.terminate();
-}
-
-/****************************************************/
+/**
+ * Run the prepare phase to extract the buffer addresses from the object.
+**/
 void TaskObjectFlush::runPrepare(void)
 {
 	//debug
@@ -57,4 +47,17 @@ void TaskObjectFlush::runPrepare(void)
 	//REMARK: we need to check the buffer addresses due to the COW support which might
 	//change them. If we remove COW this line can be removed.
 	this->setMemRanges(this->ops.buildMemRanges());
+}
+
+/****************************************************/
+/**
+ * Now the action has been performed we can send the response to the client.
+**/
+void TaskObjectFlush::runPostAction(void)
+{
+	//debug
+	IOC_DEBUG_ARG("task:obj:flush", "%1.runPostAction(%2)").arg(this).arg(Serializer::stringify(flushInfos)).end();
+
+	//send response
+	connection->sendResponse(IOC_LF_MSG_OBJ_FLUSH_ACK, this->lfClientId, ret);
 }

@@ -53,11 +53,11 @@ LibfabricActionResult HookObjectRead::onMessage(LibfabricConnection * connection
 	//check case
 	if (objReadWrite.size <= IOC_EAGER_MAX_READ) {
 		//launch the task
-		IOTask * task = new TaskObjectReadEager(connection, request, container, stats, objReadWrite);
+		IOTask * task = new TaskObjectReadEager(connection, request.lfClientId, container, stats, objReadWrite);
 		this->taskRunner->pushTask(task);
 	} else {
 		//launch the task
-		IOTask * task = new TaskObjectReadWriteRdma(connection, request, container, stats, objReadWrite, ACCESS_READ);
+		IOTask * task = new TaskObjectReadWriteRdma(connection, request.lfClientId, container, stats, objReadWrite, ACCESS_READ);
 		this->taskRunner->pushTask(task);
 	}
 

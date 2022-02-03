@@ -13,6 +13,10 @@
 using namespace IOC;
 
 /****************************************************/
+/**
+ * Constructor of the deferred operation. Just make its initialization.
+ * @param type Define the type of operation to be performed.
+**/
 DeferredOperation::DeferredOperation(DeferredOperationType type)
 {
 	this->type = type;
@@ -26,6 +30,12 @@ DeferredOperation::DeferredOperation(DeferredOperationType type)
 }
 
 /****************************************************/
+/**
+ * Attach the buffer informations.
+ * @param buffer Define the buffer on which to apply the operation.
+ * @param size Define the amount of data to move.
+ * @param offset Define the offset of the operation in the storage backend.
+**/
 void DeferredOperation::setData(void * buffer, size_t size, size_t offset)
 {
 	//check
@@ -39,7 +49,13 @@ void DeferredOperation::setData(void * buffer, size_t size, size_t offset)
 }
 
 /****************************************************/
-void DeferredOperation::setObjectInfos(Object * object, StorageBackend * backend, ObjectSegment * segment)
+/**
+ * Attach the object information to the operation.
+ * @param object Define on which object the operation will be done. This is more for debugging.
+ * @param backend Define the storage backend to be used to make the operation.
+ * @param segment Define the object segment on which to apply the dirty state.
+**/
+void DeferredOperation::setObjectInfos(const Object * object, StorageBackend * backend, ObjectSegment * segment)
 {
 	//check
 	assert(object != NULL);
@@ -52,12 +68,19 @@ void DeferredOperation::setObjectInfos(Object * object, StorageBackend * backend
 }
 
 /****************************************************/
+/**
+ * Define what to do with the dirty state of the object segment once the operation
+ * has been performed.
+**/
 void DeferredOperation::setDitryAction(DeferredDirtyAction action)
 {
 	this->ditryAction = action;
 }
 
 /****************************************************/
+/**
+ * Apply the operation by making the requested call to pread()/pwrite().
+**/
 ssize_t DeferredOperation::run(void)
 {
 	//check
@@ -101,6 +124,10 @@ ssize_t DeferredOperation::run(void)
 }
 
 /****************************************************/
+/**
+ * Build a memory range information fromt the operation description to be
+ * added to the memory ranges used for the task ordering and scheduling.
+**/
 IORange DeferredOperation::buildMemRange(void)
 {
 	//check
@@ -112,7 +139,10 @@ IORange DeferredOperation::buildMemRange(void)
 }
 
 /****************************************************/
-ssize_t DeferredOperationList::runAll(void)
+/**
+ * Run all the oprations from the operation list.
+**/
+ssize_t DeferredOperationVector::runAll(void)
 {
 	ssize_t ret = 0;
 	for (auto & op : *this)
@@ -123,7 +153,11 @@ ssize_t DeferredOperationList::runAll(void)
 
 
 /****************************************************/
-IORanges DeferredOperationList::buildMemRanges(void)
+/**
+ * Build a list of memory ranges corresponding to all the contained
+ * operations.
+**/
+IORanges DeferredOperationVector::buildMemRanges(void)
 {
 	IORanges ranges(this->size());
 	for (auto & op : *this)

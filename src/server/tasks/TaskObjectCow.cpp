@@ -15,11 +15,14 @@ using namespace IOC;
 
 /****************************************************/
 /**
- * @todo optimisze not using SIZE_MAX if the flush range is smaller !
+ * Constructor of the object task COW.
+ * @param connection Define the connection to be used to send back the response.
+ * @param lfClientId Define to who to respond.
+ * @param container Define the container to be used to find the object.
+ * @param objCow The deserialized client request informations.
 **/
-TaskObjectCow::TaskObjectCow(LibfabricConnection * connection, LibfabricClientRequest & request, Container * container, LibfabricObjectCow objCow)
+TaskObjectCow::TaskObjectCow(LibfabricConnection * connection, uint64_t lfClientId, Container * container, LibfabricObjectCow objCow)
                 :IOTask(IO_TYPE_WRITE, 2)
-                ,request(request)
                 ,objCow(objCow)
 {
 	//check
@@ -31,7 +34,7 @@ TaskObjectCow::TaskObjectCow(LibfabricConnection * connection, LibfabricClientRe
 	if (size == 0)
 		size = SIZE_MAX;
 
-	//build dependency on objects to scehdule
+	//build dependency on the two object we interact with
 	this->pushObjectRange(ObjectRange(objCow.sourceObjectId, offset, size));
 	this->pushObjectRange(ObjectRange(objCow.destObjectId, offset, size));
 
@@ -39,12 +42,16 @@ TaskObjectCow::TaskObjectCow(LibfabricConnection * connection, LibfabricClientRe
 	this->connection = connection;
 	this->container = container;
 	this->res = -1;
+	this->lfClientId = lfClientId;
 
 	//mark as immediate task to run in the core thread
 	this->markAsImmediate();
 }
 
 /****************************************************/
+/**
+ * Prepare the opration by computing the memory buffers we will apply on.
+**/
 void TaskObjectCow::runPrepare(void)
 {
 	//debug
@@ -70,6 +77,13 @@ void TaskObjectCow::runPrepare(void)
 }
 
 /****************************************************/
+/**
+ * Perform the action.
+ * 
+ * Remark: this one should be sure to run on the networking thread because we
+ * access the objects and change their state. This is guarantied becuse we
+ * called markAsImmediate() in the constructor.
+**/
 void TaskObjectCow::runAction(void)
 {
 	//debug
@@ -93,14 +107,15 @@ void TaskObjectCow::runAction(void)
 
 
 /****************************************************/
+/**
+ * As a post action when done we can send the reponse to the client to tell
+ * the COW has been done.
+**/
 void TaskObjectCow::runPostAction(void)
 {
 	//debug
 	IOC_DEBUG_ARG("task:obj:cow", "%1.runPostAction(%2)").arg(this).arg(Serializer::stringify(objCow)).end();
 
 	//send response
-	connection->sendResponse(IOC_LF_MSG_OBJ_COW_ACK, request.lfClientId, res);
-
-	//republish
-	request.terminate();
+	connection->sendResponse(IOC_LF_MSG_OBJ_COW_ACK, this->lfClientId, res);
 }
