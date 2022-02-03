@@ -7,6 +7,8 @@
 /****************************************************/
 #include "base/common/Debug.hpp"
 #include "base/network/LibfabricConnection.hpp"
+#include "../tasks/TaskObjectCow.hpp"
+#include "../worker/TaskRunner.hpp"
 #include "HookObjectCow.hpp"
 
 /****************************************************/
@@ -17,9 +19,12 @@ using namespace IOC;
  * Constructor of the object create hook.
  * @param container The container to be able to access objects to create.
 **/
-HookObjectCow::HookObjectCow(Container * container)
+HookObjectCow::HookObjectCow(Container * container, TaskRunner * taskRunner)
 {
+	assert(container != NULL);
+	assert(taskRunner != NULL);
 	this->container = container;
+	this->taskRunner = taskRunner;
 }
 
 /****************************************************/
@@ -34,21 +39,12 @@ LibfabricActionResult HookObjectCow::onMessage(LibfabricConnection * connection,
 		.arg(Serializer::stringify(objCow))
 		.arg(request.lfClientId)
 		.end();
-	
-	//extract id
-	LibfabricObjectId & sourceId = objCow.sourceObjectId;
-	LibfabricObjectId & destId = objCow.destObjectId;
 
-	//create object
-	bool status;
-	LibfabricObjectCow & objectCow = objCow;
-	if (objectCow.rangeSize == 0)
-		status = this->container->makeObjectFullCow(sourceId, destId, objectCow.allowExist);
-	else
-		status = this->container->makeObjectRangeCow(sourceId, destId, objectCow.allowExist, objectCow.rangeOffset, objectCow.rangeSize); 
+	//build task
+	TaskObjectCow * taskCow = new TaskObjectCow(connection, request.lfClientId, container, objCow);
 
-	//send response
-	connection->sendResponse(IOC_LF_MSG_OBJ_COW_ACK, request.lfClientId, (status)?0:-1);
+	//schedule the task
+	this->taskRunner->pushTask(taskCow);
 
 	//republish
 	request.terminate();

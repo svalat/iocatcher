@@ -15,6 +15,19 @@ using namespace IOC;
 using namespace testing;
 
 /****************************************************/
+TEST(TestObjectId, operator_equal)
+{
+	ObjectId objectId1(10, 20);
+	ObjectId objectId2(10, 20);
+	ObjectId objectId3(10, 21);
+	ObjectId objectId4(11, 20);
+
+	EXPECT_TRUE(objectId1 == objectId2);
+	EXPECT_FALSE(objectId1 == objectId3);
+	EXPECT_FALSE(objectId1 == objectId4);
+}
+
+/****************************************************/
 TEST(TestObject, getBuffers_1)
 {
 	MemoryBackendMalloc mback(NULL);
@@ -308,4 +321,42 @@ TEST(TestObject, buildIovec_offset)
 	iovec * res = Object::buildIovec(segList, 128, 512);
 	EXPECT_EQ((void*)(buffer+128), (void*)(res[0].iov_base));
 	EXPECT_EQ(512-128, res[0].iov_len);
+}
+
+/****************************************************/
+TEST(TestObject, getMemRanges_simple)
+{
+	MemoryBackendMalloc mback(NULL);
+	ObjectId objectId(10, 20);
+	Object object(NULL, &mback, objectId);
+
+	//make request
+	ObjectSegmentList lst;
+	object.getBuffers(lst, 1000, 500, ACCESS_READ);
+	EXPECT_EQ(1, lst.size());
+	void * ptr = lst.front().ptr;
+
+	//get mem range
+	MemRanges memRanges = object.getMemRanges(0, 2000);
+	EXPECT_EQ(1, memRanges.getCursor());
+	EXPECT_EQ(MemRange((size_t)ptr, 500), memRanges[0]);
+}
+
+/****************************************************/
+TEST(TestObject, getMemRanges_offset)
+{
+	MemoryBackendMalloc mback(NULL);
+	ObjectId objectId(10, 20);
+	Object object(NULL, &mback, objectId);
+
+	//make request
+	ObjectSegmentList lst;
+	object.getBuffers(lst, 1000, 500, ACCESS_READ);
+	EXPECT_EQ(1, lst.size());
+	void * ptr = lst.front().ptr;
+
+	//get mem range
+	MemRanges memRanges = object.getMemRanges(1250, 2000);
+	EXPECT_EQ(1, memRanges.getCursor());
+	EXPECT_EQ(MemRange((size_t)ptr + 250, 250), memRanges[0]);
 }

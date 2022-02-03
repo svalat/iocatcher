@@ -23,6 +23,7 @@
 #include "MemoryBackend.hpp"
 #include "StorageBackend.hpp"
 #include "ConsistencyTracker.hpp"
+#include "../worker/IORanges.hpp"
 #include "../../base/network/LibfabricDomain.hpp"
 #include "../../base/network/Protocol.hpp"
 
@@ -89,6 +90,7 @@ class Object
 		void setStorageBackend(StorageBackend * storageBackend);
 		void setMemoryBackend(MemoryBackend * memoryBackend);
 		ObjectSegment * getObjectSegment(size_t offset);
+		MemRanges getMemRanges(size_t offset, size_t size);
 	private:
 		void rangeCopyOnWriteSegment(ObjectSegment & origSegment, size_t offset, size_t size);
 		ObjectSegmentDescr loadSegment(size_t offset, size_t size, bool load = true, bool acceptLoadFail = false);

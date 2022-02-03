@@ -656,3 +656,38 @@ bool IOC::operator==(const ObjectId & objId1, const ObjectId & objId2)
 {
 	return objId1.low == objId2.low && objId1.high == objId2.high;
 }
+
+/****************************************************/
+/**
+ * Build the memory ranges used to protect a task in the task scheduler
+ * for an operation which will impact the given range.
+ * @param offset Define the offset from which the operation will start from.
+ * @param size Define the size of the range to be impacted by the operation.
+**/
+MemRanges Object::getMemRanges(size_t offset, size_t size)
+{
+	//build selection range
+	IORange selectionRange(offset, size);
+
+	//count number of hits
+	size_t cnt = 0;
+	for (auto & it : this->segmentMap)
+		if (it.second.overlap(offset, size))
+			cnt++;
+	
+	//build ranges
+	MemRanges ranges(cnt);
+
+	//fill it
+	for (auto & it : this->segmentMap) {
+		if (it.second.overlap(offset, size)) {
+			IORange range = it.second.getRange();
+			IORange intersect = selectionRange.intersect(range);
+			intersect.offset += (size_t)it.second.getBuffer() - range.offset;
+			ranges.push(intersect);
+		}
+	}
+
+	//ret
+	return ranges;
+}
