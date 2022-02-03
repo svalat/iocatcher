@@ -7,7 +7,9 @@
 ######################################################
 set(SERVER_WORKER_SRC Worker.cpp
                       IORanges.cpp
-                      ObjectRanges.cpp)
+                      ObjectRanges.cpp
+                      IOTask.cpp
+)
 
 ######################################################
 add_library(ioc-server-worker OBJECT ${SERVER_WORKER_SRC})
