@@ -716,7 +716,7 @@ IORanges Object::getMemRanges(size_t offset, size_t size)
 	for (auto & it : this->segmentMap) {
 		if (it.second.overlap(offset, size)) {
 			IORange range = it.second.getRange();
-			IORange intersect = IORange::intersect(selectionRange, range);
+			IORange intersect = selectionRange.intersect(range);
 			intersect.address += (size_t)it.second.getBuffer() - range.address;
 			ranges.push(intersect);
 		}

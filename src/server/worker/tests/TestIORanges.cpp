@@ -62,21 +62,21 @@ TEST(TestIORange, operator_equal)
 /*********************************************************/
 TEST(TestIORange, intersect_left)
 {
-	IORange res = IORange::intersect(IORange(0,15), IORange(10, 10));
+	IORange res = IORange(0,15).intersect(IORange(10, 10));
 	EXPECT_EQ(IORange(10, 5), res);
 }
 
 /*********************************************************/
 TEST(TestIORange, intersect_middle)
 {
-	IORange res = IORange::intersect(IORange(12,5), IORange(10, 10));
+	IORange res = IORange(12,5).intersect(IORange(10, 10));
 	EXPECT_EQ(IORange(12, 5), res);
 }
 
 /*********************************************************/
 TEST(TestIORange, intersect_right)
 {
-	IORange res = IORange::intersect(IORange(15,20), IORange(10, 10));
+	IORange res = IORange(15,20).intersect(IORange(10, 10));
 	EXPECT_EQ(IORange(15, 5), res);
 }
 

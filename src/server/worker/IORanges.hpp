@@ -21,7 +21,7 @@ struct IORange
 	IORange(void);
 	inline IORange(size_t address, size_t size);
 	inline bool collide(const IORange & range) const;
-	inline static IORange intersect(const IORange & range1, const IORange & range2);
+	inline IORange intersect(const IORange & range) const;
 	inline size_t end(void) const;
 	inline bool operator==(const IORange & other) const;
 	size_t address;
@@ -73,11 +73,11 @@ inline size_t IORange::end(void) const
 };
 
 /****************************************************/
-IORange IORange::intersect(const IORange & range1, const IORange & range2)
+inline IORange IORange::intersect(const IORange & range) const
 {
-	assert(range1.collide(range2));
-	size_t offset = std::max(range1.address, range2.address);
-	size_t end = std::min(range1.end(), range2.end());
+	assert(this->collide(range));
+	size_t offset = std::max(this->address, range.address);
+	size_t end = std::min(this->end(), range.end());
 	return IORange(offset, end - offset);
 }
 
