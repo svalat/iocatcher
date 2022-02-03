@@ -23,6 +23,7 @@
 #include "MemoryBackend.hpp"
 #include "StorageBackend.hpp"
 #include "ConsistencyTracker.hpp"
+#include "DeferredOperation.hpp"
 #include "../worker/IORanges.hpp"
 #include "../../base/network/LibfabricDomain.hpp"
 #include "../../base/network/Protocol.hpp"
@@ -81,7 +82,7 @@ class Object
 		bool checkUniq(size_t offset, size_t size);
 		static iovec * buildIovec(ObjectSegmentList & segments, size_t offset, size_t size);
 		void markDirty(size_t base, size_t size);
-		int flush(size_t offset, size_t size);
+		DeferredOperationVector genFlushOps(size_t offset, size_t size);
 		int create(void);
 		void forceAlignement(size_t alignment);
 		ConsistencyTracker & getConsistencyTracker(void);

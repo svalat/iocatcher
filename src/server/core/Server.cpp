@@ -86,7 +86,7 @@ Server::Server(const Config * config, const std::string & port)
 
 	//register hooks
 	this->connection->registerHook(IOC_LF_MSG_PING, new HookPingPong(this->domain));
-	this->connection->registerHook(IOC_LF_MSG_OBJ_FLUSH, new HookFlush(this->container));
+	this->connection->registerHook(IOC_LF_MSG_OBJ_FLUSH, new HookFlush(this->container, taskRunner));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_RANGE_REGISTER, new HookRangeRegister(this->config, this->container));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_RANGE_UNREGISTER, new HookRangeUnregister(this->config, this->container));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_CREATE, new HookObjectCreate(this->container));
@@ -118,6 +118,9 @@ Server::~Server(void)
 {
 	//stop the server
 	this->stop();
+
+	//flush all
+	this->container->flushAllByTasks(this->taskRunner);
 
 	//wait all tasks to finish
 	this->taskRunner->waitAllFinished();
