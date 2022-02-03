@@ -90,6 +90,8 @@ Server::Server(const Config * config, const std::string & port)
 	this->connection->registerHook(IOC_LF_MSG_OBJ_RANGE_REGISTER, new HookRangeRegister(this->config, this->container));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_RANGE_UNREGISTER, new HookRangeUnregister(this->config, this->container));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_CREATE, new HookObjectCreate(this->container));
+	this->connection->registerHook(IOC_LF_MSG_OBJ_READ, new HookObjectRead(this->container, &this->stats, this->taskRunner));
+	this->connection->registerHook(IOC_LF_MSG_OBJ_WRITE, new HookObjectWrite(this->container, &this->stats, this->taskRunner));
 	this->connection->registerHook(IOC_LF_MSG_OBJ_COW, new HookObjectCow(this->container, this->taskRunner));
 
 	//set error dispatch

@@ -77,6 +77,7 @@ class Object
 		const ObjectId & getObjectId(void) const;
 		char * getUniqBuffer(size_t base, size_t size, ObjectAccessMode accessMode, bool load = true);
 		bool getBuffers(ObjectSegmentList & segments, size_t base, size_t size, ObjectAccessMode accessMode, bool load = true, bool isForWriteOp = false);
+		bool getBuffers(DeferredOperationVector & deferredOps, ObjectSegmentList & segments, size_t base, size_t size, ObjectAccessMode accessMode, bool load = true, bool isForWriteOp = false);
 		void fillBuffer(size_t offset, size_t size, char value);
 		bool checkBuffer(size_t offset, size_t size, char value);
 		bool checkUniq(size_t offset, size_t size);
@@ -94,7 +95,7 @@ class Object
 		MemRanges getMemRanges(size_t offset, size_t size);
 	private:
 		void rangeCopyOnWriteSegment(ObjectSegment & origSegment, size_t offset, size_t size);
-		ObjectSegmentDescr loadSegment(size_t offset, size_t size, bool load = true, bool acceptLoadFail = false);
+		ObjectSegmentDescr loadSegment(DeferredOperationVector & deferredOps, size_t offset, size_t size, bool load = true, bool acceptLoadFail = false);
 		ssize_t pwrite(void * buffer, size_t size, size_t offset);
 		ssize_t pread(void * buffer, size_t size, size_t offset);
 		bool isFullyOverlapped(size_t segOffset, size_t segSize, size_t reqOffset, size_t reqSize);

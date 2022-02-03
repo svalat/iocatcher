@@ -8,6 +8,9 @@
 set(SERVER_TASKS_SRC TaskDeferredOps.cpp
                      TaskObjectFlush.cpp
                      TaskObjectCow.cpp
+                     TaskObjectReadWriteRdma.cpp
+                     TaskObjectWriteEager.cpp
+                     TaskObjectReadEager.cpp
 )
 
 ######################################################

@@ -132,6 +132,36 @@ bool Object::isFullyOverlapped(size_t segOffset, size_t segSize, size_t reqOffse
 **/
 bool Object::getBuffers(ObjectSegmentList & segments, size_t base, size_t size, ObjectAccessMode accessMode, bool load, bool isForWriteOp)
 {
+	//get
+	DeferredOperationVector deferredOps;
+	bool res = this->getBuffers(deferredOps, segments, base, size, accessMode, load, isForWriteOp);
+
+	//check
+	if (res == false)
+		return false;
+
+	//run deferred
+	return (deferredOps.runAll() == 0 || isForWriteOp);
+}
+
+/****************************************************/
+/**
+ * Get the list of object segments matching the given range.
+ * @warning Cauton, the first segment can have a lower offset thant the requested offset.
+ * It return segments as they are in the object.
+ * @param segments The list to fill.
+ * @param base The base address of the range to consider.
+ * @param size The size of the range to consider.
+ * @param accessMode Define the mode of access to know if we need to trigger copy-on-write.
+ * @param load If need to load the segment if not present.
+ * @param isForWriteOp For write operation we want to accept pre-read failure and puruse but
+ * we want to report error on a read operation. Also on write op we load the data from
+ * storage only if the loaded segment is larger than the requested range (in other word
+ * if due to alignement the caller will not write the full segment).
+ * @return True if OK, false in case it fails to read content while creating the segments.
+**/
+bool Object::getBuffers(DeferredOperationVector & deferredOps, ObjectSegmentList & segments, size_t base, size_t size, ObjectAccessMode accessMode, bool load, bool isForWriteOp)
+{
 	//keep orig range
 	size_t origBase = base;
 	size_t origSize = size;
@@ -169,7 +199,7 @@ bool Object::getBuffers(ObjectSegmentList & segments, size_t base, size_t size, 
 			bool needLoad = load;
 			if (isForWriteOp && isFullyOverlapped(lastOffset, size, origBase, origSize))
 				needLoad = false;
-			ObjectSegmentDescr descr = this->loadSegment(lastOffset, size, needLoad, isForWriteOp);
+			ObjectSegmentDescr descr = this->loadSegment(deferredOps, lastOffset, size, needLoad, isForWriteOp);
 			if (descr.ptr == NULL) {
 				segments.clear();
 				return false;
@@ -190,7 +220,7 @@ bool Object::getBuffers(ObjectSegmentList & segments, size_t base, size_t size, 
 		bool needLoad = load;
 		if (isForWriteOp && isFullyOverlapped(lastOffset, size, origBase, origSize))
 			needLoad = false;
-		ObjectSegmentDescr descr = this->loadSegment(lastOffset, size, needLoad, isForWriteOp);
+		ObjectSegmentDescr descr = this->loadSegment(deferredOps, lastOffset, size, needLoad, isForWriteOp);
 		if (descr.ptr == NULL) {
 			segments.clear();
 			return false;
@@ -218,15 +248,26 @@ bool Object::getBuffers(ObjectSegmentList & segments, size_t base, size_t size, 
  * do not fail if the load operation fails.
  * @return The loaded object segment.
 **/
-ObjectSegmentDescr Object::loadSegment(size_t offset, size_t size, bool load, bool acceptLoadFail)
+ObjectSegmentDescr Object::loadSegment(DeferredOperationVector & deferredOps, size_t offset, size_t size, bool load, bool acceptLoadFail)
 {
 	//allocate memory
 	char* buffer = (char*)this->memoryBackend->allocate(size);
 
+	//register using end address to be able to use lower_bound() to quick search
+	ObjectSegment & segment = this->segmentMap[offset+size-1];
+	segment = ObjectSegment(offset, size, buffer, this->memoryBackend);
+
 	//load data
 	if (load) {
-		size_t status = this->pread(buffer, size, offset);
+		DeferredOperation op(DEFEERRED_READ);
+		op.setObjectInfos(this, this->storageBackend, &segment);
+		op.setData(buffer, size, offset);
+		deferredOps.push_back(op);
+
 		//if fail to read
+		/** TODO: transport in deferred op **/
+		/*
+		size_t status = this->pread(buffer, size, offset);
 		if (status != size && !acceptLoadFail) {
 			this->memoryBackend->deallocate(buffer, size);
 			ObjectSegmentDescr errDescr = {
@@ -235,12 +276,8 @@ ObjectSegmentDescr Object::loadSegment(size_t offset, size_t size, bool load, bo
 				0
 			};
 			return errDescr;
-		}
+		}*/
 	}
-
-	//register using end address to be able to use lower_bound() to quick search
-	ObjectSegment & segment = this->segmentMap[offset+size-1];
-	segment = ObjectSegment(offset, size, buffer, this->memoryBackend);
 
 	//return descr
 	return segment.getSegmentDescr();

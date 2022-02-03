@@ -11,6 +11,7 @@
 #include "base/network/Hook.hpp"
 #include "../core/Container.hpp"
 #include "../core/ServerStats.hpp"
+#include "../worker/TaskRunner.hpp"
 
 /****************************************************/
 namespace IOC
@@ -23,15 +24,13 @@ namespace IOC
 class HookObjectRead : public Hook
 {
 	public:
-		HookObjectRead(Container * container, ServerStats * stats);
+		HookObjectRead(Container * container, ServerStats * stats, TaskRunner * taskRunner);
 		virtual LibfabricActionResult onMessage(LibfabricConnection * connection, LibfabricClientRequest & request) override;
-	private:
-		void objRdmaPushToClient(LibfabricConnection * connection, uint64_t clientId, LibfabricObjReadWriteInfos & objReadWrite, ObjectSegmentList & segments);
-		void objEagerPushToClient(LibfabricConnection * connection, uint64_t clientId, LibfabricObjReadWriteInfos & objReadWrite, ObjectSegmentList & segments);
 	private:
 		/** Pointer to the container to be able to access objects **/
 		Container * container;
 		ServerStats * stats;
+		TaskRunner * taskRunner;
 };
 
 }
