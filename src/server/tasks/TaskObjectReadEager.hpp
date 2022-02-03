@@ -9,6 +9,7 @@
 
 /****************************************************/
 #include "../../base/network/LibfabricConnection.hpp"
+#include "../../base/network/LibfabricPreBuiltResponse.hpp"
 #include "../core/DeferredOperation.hpp"
 #include "TaskDeferredOps.hpp"
 #include "../core/Container.hpp"

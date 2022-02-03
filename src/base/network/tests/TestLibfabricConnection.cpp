@@ -14,6 +14,7 @@
 #include <sys/uio.h>
 //local
 #include "../LibfabricConnection.hpp"
+#include "../LibfabricPreBuiltResponse.hpp"
 
 /****************************************************/
 using namespace IOC;
