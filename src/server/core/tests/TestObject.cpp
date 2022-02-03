@@ -359,9 +359,9 @@ TEST(TestObject, getMemRanges_simple)
 	void * ptr = lst.front().ptr;
 
 	//get mem range
-	IORanges memRanges = object.getMemRanges(0, 2000);
+	MemRanges memRanges = object.getMemRanges(0, 2000);
 	EXPECT_EQ(1, memRanges.getCursor());
-	EXPECT_EQ(IORange((size_t)ptr, 500), memRanges[0]);
+	EXPECT_EQ(MemRange((size_t)ptr, 500), memRanges[0]);
 }
 
 /****************************************************/
@@ -378,7 +378,7 @@ TEST(TestObject, getMemRanges_offset)
 	void * ptr = lst.front().ptr;
 
 	//get mem range
-	IORanges memRanges = object.getMemRanges(1250, 2000);
+	MemRanges memRanges = object.getMemRanges(1250, 2000);
 	EXPECT_EQ(1, memRanges.getCursor());
-	EXPECT_EQ(IORange((size_t)ptr + 250, 250), memRanges[0]);
+	EXPECT_EQ(MemRange((size_t)ptr + 250, 250), memRanges[0]);
 }

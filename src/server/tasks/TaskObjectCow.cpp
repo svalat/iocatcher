@@ -68,11 +68,11 @@ void TaskObjectCow::runPrepare(void)
 		size = SIZE_MAX;
 
 	//extract ranges
-	IORanges srcRanges = srcObject.getMemRanges(offset, size);
-	IORanges destRanges = destObject.getMemRanges(offset, size);
+	MemRanges srcRanges = srcObject.getMemRanges(offset, size);
+	MemRanges destRanges = destObject.getMemRanges(offset, size);
 
 	//build final
-	IORanges ranges(srcRanges.getCursor() + destRanges.getCursor());
+	MemRanges ranges(srcRanges.getCursor() + destRanges.getCursor());
 	this->setMemRanges(std::move(ranges));
 }
 

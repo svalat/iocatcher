@@ -46,7 +46,7 @@ IOTask::IOTask(IOTaksType ioType, const ObjectRange & objectRange)
 }
 
 /****************************************************/
-IOTask::IOTask(IOTaksType ioType, const ObjectRange & objectRange, const IORanges & memRanges)
+IOTask::IOTask(IOTaksType ioType, const ObjectRange & objectRange, const MemRanges & memRanges)
        :memRanges(memRanges)
        ,objectRanges(objectRange)
 {
@@ -147,7 +147,7 @@ bool IOTask::unblock(void)
 }
 
 /****************************************************/
-void IOTask::setMemRanges(IORanges && memRanges)
+void IOTask::setMemRanges(MemRanges && memRanges)
 {
 	this->memRanges = std::move(memRanges);
 }

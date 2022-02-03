@@ -10,23 +10,11 @@
 /****************************************************/
 #include <cstdlib>
 #include <deque>
+#include "IORange.hpp"
 
 /****************************************************/
 namespace IOC
 {
-
-/****************************************************/
-struct IORange
-{
-	IORange(void);
-	inline IORange(size_t address, size_t size);
-	inline bool collide(const IORange & range) const;
-	inline IORange intersect(const IORange & range) const;
-	inline size_t end(void) const;
-	inline bool operator==(const IORange & other) const;
-	size_t address;
-	size_t size;
-};
 
 /****************************************************/
 class IORanges
@@ -38,7 +26,7 @@ class IORanges
 		IORanges(const IORange & uniqRange);
 		~IORanges(void);
 		IORanges & push(const IORange & range);
-		IORanges & push(size_t address, size_t size);
+		IORanges & push(size_t offset, size_t size);
 		IORanges & push(const IORanges & ranges);
 		bool collide(const IORanges & ranges) const;
 		bool ready(void) const;
@@ -54,38 +42,7 @@ class IORanges
 };
 
 /****************************************************/
-inline IORange::IORange(size_t address, size_t size)
-{
-	this->address = address;
-	this->size = size; 
-};
-
-/****************************************************/
-inline bool IORange::collide(const IORange & range) const
-{
-	return ! (range.end() <= this->address || range.address >= this->end()); 
-};
-
-/****************************************************/
-inline size_t IORange::end(void) const
-{
-	return this->address + this->size;
-};
-
-/****************************************************/
-inline IORange IORange::intersect(const IORange & range) const
-{
-	assert(this->collide(range));
-	size_t offset = std::max(this->address, range.address);
-	size_t end = std::min(this->end(), range.end());
-	return IORange(offset, end - offset);
-}
-
-/****************************************************/
-bool IORange::operator==(const IORange & other) const
-{
-	return this->address == other.address && this->size == other.size;
-}
+typedef IORanges MemRanges;
 
 }
 

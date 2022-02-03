@@ -85,16 +85,16 @@ bool ObjectRanges::ready(void) const
 }
 
 /****************************************************/
-ObjectRanges & ObjectRanges::push(const ObjectId & objectId, size_t address, size_t size)
+ObjectRanges & ObjectRanges::push(const ObjectId & objectId, size_t offset, size_t size)
 {
 	//check
-	assert(address != 0);
+	assert(offset != 0);
 	assert(size != 0);
 	assert(this->cursor < this->count);
 
 	//push
 	this->objectRanges[this->cursor].objectId = objectId;
-	this->objectRanges[this->cursor].range.address = address;
+	this->objectRanges[this->cursor].range.offset = offset;
 	this->objectRanges[this->cursor].range.size = size;
 
 	//move

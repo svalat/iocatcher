@@ -46,7 +46,7 @@ class IOTask : public Task
 	public:
 		IOTask(IOTaksType ioType, int objectRangesCount);
 		IOTask(IOTaksType ioType, const ObjectRange & objectRange);
-		IOTask(IOTaksType ioType, const ObjectRange & objectRange, const IORanges & memRanges);
+		IOTask(IOTaksType ioType, const ObjectRange & objectRange, const MemRanges & memRanges);
 		virtual ~IOTask(void) {};
 		bool isActive(void) const;
 		void activate(void);
@@ -61,7 +61,7 @@ class IOTask : public Task
 		void setTaskRunner(TaskRunner * runner);
 	protected:
 		void terminateDetachedPost(void);
-		void setMemRanges(IORanges && memRanges);
+		void setMemRanges(MemRanges && memRanges);
 		void pushObjectRange(const ObjectRange & objectRange);
 	private:
 		static inline bool oneIs(const IOTask * task1, const IOTask * task2, IOTaksType type);
@@ -76,7 +76,7 @@ class IOTask : public Task
 		 * between multiple objects. We can optimize and use a single range with object ID
 		 * if we remove the copy-on-write feature.
 		**/
-		IORanges memRanges;
+		MemRanges memRanges;
 		/** Protect the listed ranges in objects. **/
 		ObjectRanges objectRanges;
 		/** Count blocking dependencies to know when we can start the task. **/

@@ -707,7 +707,7 @@ bool IOC::operator==(const ObjectId & objId1, const ObjectId & objId2)
  * @param offset Define the offset from which the operation will start from.
  * @param size Define the size of the range to be impacted by the operation.
 **/
-IORanges Object::getMemRanges(size_t offset, size_t size)
+MemRanges Object::getMemRanges(size_t offset, size_t size)
 {
 	//build selection range
 	IORange selectionRange(offset, size);
@@ -719,14 +719,14 @@ IORanges Object::getMemRanges(size_t offset, size_t size)
 			cnt++;
 	
 	//build ranges
-	IORanges ranges(cnt);
+	MemRanges ranges(cnt);
 
 	//fill it
 	for (auto & it : this->segmentMap) {
 		if (it.second.overlap(offset, size)) {
 			IORange range = it.second.getRange();
 			IORange intersect = selectionRange.intersect(range);
-			intersect.address += (size_t)it.second.getBuffer() - range.address;
+			intersect.offset += (size_t)it.second.getBuffer() - range.offset;
 			ranges.push(intersect);
 		}
 	}

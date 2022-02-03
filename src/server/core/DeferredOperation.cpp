@@ -128,14 +128,14 @@ ssize_t DeferredOperation::run(void)
  * Build a memory range information fromt the operation description to be
  * added to the memory ranges used for the task ordering and scheduling.
 **/
-IORange DeferredOperation::buildMemRange(void)
+MemRange DeferredOperation::buildMemRange(void)
 {
 	//check
 	assert(this->buffer != NULL);
 	assert(this->size > 0);
 
 	//build
-	return IORange((size_t)this->buffer, this->size);
+	return MemRange((size_t)this->buffer, this->size);
 }
 
 /****************************************************/
@@ -157,9 +157,9 @@ ssize_t DeferredOperationVector::runAll(void)
  * Build a list of memory ranges corresponding to all the contained
  * operations.
 **/
-IORanges DeferredOperationVector::buildMemRanges(void)
+MemRanges DeferredOperationVector::buildMemRanges(void)
 {
-	IORanges ranges(this->size());
+	MemRanges ranges(this->size());
 	for (auto & op : *this)
 		ranges.push(op.buildMemRange());
 	return ranges;

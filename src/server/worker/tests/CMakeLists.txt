@@ -16,7 +16,7 @@ set(TEST_NAMES TestSharedQueue
                TestIOTask
                TestTaskScheduler
                TestIORanges
-			   TestObjectRanges
+               TestObjectRanges
                TestTaskRunner
 )
 

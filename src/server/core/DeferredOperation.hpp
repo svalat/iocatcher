@@ -96,7 +96,7 @@ class DeferredOperationVector : public std::vector<DeferredOperation>
 {
 	public:
 		ssize_t runAll(void);
-		IORanges buildMemRanges(void);
+		MemRanges buildMemRanges(void);
 };
 
 }

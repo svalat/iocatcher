@@ -12,13 +12,6 @@
 using namespace IOC;
 
 /****************************************************/
-IORange::IORange(void)
-{
-	this->address = 0;
-	this->size = 0;
-}
-
-/****************************************************/
 /**
  * @todo Make an optimization when count = 1 to have a local storage to avoid
  * the allocation.
@@ -128,15 +121,15 @@ bool IORanges::ready(void) const
 }
 
 /****************************************************/
-IORanges & IORanges::push(size_t address, size_t size)
+IORanges & IORanges::push(size_t offset, size_t size)
 {
 	//check
-	assert(address != 0);
+	assert(offset != 0);
 	assert(size != 0);
 	assert(this->cursor < this->count);
 
 	//push
-	this->ranges[this->cursor].address = address;
+	this->ranges[this->cursor].offset = offset;
 	this->ranges[this->cursor].size = size;
 
 	//move
@@ -150,7 +143,7 @@ IORanges & IORanges::push(size_t address, size_t size)
 IORanges & IORanges::push(const IORange & range)
 {
 	//check
-	assert(range.address != 0);
+	assert(range.offset != 0);
 	assert(range.size != 0);
 	assert(this->cursor < this->count);
 

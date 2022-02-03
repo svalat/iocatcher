@@ -37,7 +37,7 @@ class ObjectRanges
 		ObjectRanges(const ObjectRange & uniqRange);
 		~ObjectRanges(void);
 		ObjectRanges & push(const ObjectRange & objectRange);
-		ObjectRanges & push(const ObjectId & objectId, size_t address, size_t size);
+		ObjectRanges & push(const ObjectId & objectId, size_t offset, size_t size);
 		bool collide(const ObjectRanges & objectRanges) const;
 		bool ready(void) const;
 	private:
@@ -47,9 +47,9 @@ class ObjectRanges
 };
 
 /****************************************************/
-inline ObjectRange::ObjectRange(const ObjectId & objectId, size_t address, size_t size)
+inline ObjectRange::ObjectRange(const ObjectId & objectId, size_t offset, size_t size)
                    :objectId(objectId)
-                   ,range(address, size)
+                   ,range(offset, size)
 {
 };
 
