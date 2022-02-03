@@ -42,7 +42,7 @@ Object::Object(StorageBackend * storageBackend, MemoryBackend * memBack, const O
 /**
  * @return Return the object ID.
 **/
-const ObjectId & Object::getObjectId(void)
+const ObjectId & Object::getObjectId(void) const
 {
 	return this->objectId;
 }
@@ -633,6 +633,20 @@ bool Object::checkBuffer(size_t offset, size_t size, char value)
 	return true;
 }
 
+/****************************************************/
+/**
+ * @todo: optimize with find.
+**/
+ObjectSegment * Object::getObjectSegment(size_t offset)
+{
+	//search object
+	for (auto & it : this->segmentMap)
+		if (it.second.overlap(offset, 1))
+			return &it.second;
+	
+	//not found
+	return NULL;
+}
 
 /****************************************************/
 /**

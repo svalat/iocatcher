@@ -72,7 +72,7 @@ class Object
 {
 	public:
 		Object(StorageBackend * backend, MemoryBackend * memBackend, const ObjectId & objectId, size_t alignement = 0);
-		const ObjectId & getObjectId(void);
+		const ObjectId & getObjectId(void) const;
 		char * getUniqBuffer(size_t base, size_t size, ObjectAccessMode accessMode, bool load = true);
 		bool getBuffers(ObjectSegmentList & segments, size_t base, size_t size, ObjectAccessMode accessMode, bool load = true, bool isForWriteOp = false);
 		void fillBuffer(size_t offset, size_t size, char value);
@@ -88,6 +88,7 @@ class Object
 		void rangeCopyOnWrite(Object & origObject, size_t offset, size_t size);
 		void setStorageBackend(StorageBackend * storageBackend);
 		void setMemoryBackend(MemoryBackend * memoryBackend);
+		ObjectSegment * getObjectSegment(size_t offset);
 	private:
 		void rangeCopyOnWriteSegment(ObjectSegment & origSegment, size_t offset, size_t size);
 		ObjectSegmentDescr loadSegment(size_t offset, size_t size, bool load = true, bool acceptLoadFail = false);
