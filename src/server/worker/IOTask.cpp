@@ -8,7 +8,7 @@
 #include <cassert>
 #include "base/common/Debug.hpp"
 #include "IOTask.hpp"
-//#include "TaskRunner.hpp"
+#include "TaskRunner.hpp"
 
 /****************************************************/
 using namespace IOC;
@@ -181,5 +181,5 @@ void IOTask::terminateDetachedPost(void)
 {
 	assert(this->detachPost);
 	assert(this->taskRunner != NULL);
-	//this->taskRunner->terminateDetachedPost(this);
+	this->taskRunner->terminateDetachedPost(this);
 }
