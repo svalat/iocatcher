@@ -149,6 +149,8 @@ class LibfabricConnection
 		bool checkAuth(LibfabricMessageHeader & header, uint64_t clientId, int id);
 		void pollAllCqInCache(void);
 	private:
+		friend class LibfabricPreBuiltResponse;
+	private:
 		/** Pointer to the libfabric domain to be used to establish the connection. **/
 		LibfabricDomain * lfDomain;
 		/** Completion queue. **/

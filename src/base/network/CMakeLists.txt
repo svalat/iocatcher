@@ -12,7 +12,8 @@ set(NETWORK_SRC LibfabricDomain.cpp
                 ClientRegistry.cpp
                 HookLambdaFunction.cpp
                 Protocol.cpp
-                Hook.cpp)
+                Hook.cpp
+                LibfabricPreBuiltResponse)
 
 ######################################################
 add_library(ioc-network OBJECT ${NETWORK_SRC})
