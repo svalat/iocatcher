@@ -42,6 +42,7 @@ class ObjectRanges
 		bool ready(void) const;
 	private:
 		ObjectRange * objectRanges;
+		ObjectRange biRangesCase[2];
 		int count;
 		int cursor;
 };

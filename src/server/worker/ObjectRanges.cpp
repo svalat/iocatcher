@@ -26,6 +26,8 @@ ObjectRanges::ObjectRanges(size_t count)
 	//allocate
 	if (count == 0)
 		this->objectRanges = NULL;
+	else if (count <= 2)
+		this->objectRanges = this->biRangesCase;
 	else
 		this->objectRanges = new ObjectRange[count];
 
@@ -38,7 +40,7 @@ ObjectRanges::ObjectRanges(size_t count)
 ObjectRanges::ObjectRanges(const ObjectRange & uniqRange)
 {
 	//setup
-	this->objectRanges = new ObjectRange[1];
+	this->objectRanges = this->biRangesCase;
 	this->objectRanges[0] = uniqRange;
 	this->count = 1;
 	this->cursor = 1;
@@ -48,9 +50,19 @@ ObjectRanges::ObjectRanges(const ObjectRange & uniqRange)
 ObjectRanges::ObjectRanges(ObjectRanges && orig)
 {
 	//move
-	this->objectRanges = orig.objectRanges;
 	this->cursor = orig.cursor;
 	this->count = orig.count;
+
+	//case
+	if (this->count == 0) {
+		this->objectRanges = NULL;
+	} else if (this->count <= 2) {
+		this->objectRanges = this->biRangesCase;
+		for (size_t i = 0 ; i < this->count ; i++)
+			this->objectRanges[i] = orig.objectRanges[i];
+	} else {
+		this->objectRanges = orig.objectRanges;
+	}
 
 	//reset orig
 	orig.objectRanges = NULL;
@@ -62,9 +74,16 @@ ObjectRanges::ObjectRanges(ObjectRanges && orig)
 ObjectRanges::ObjectRanges(const ObjectRanges & orig)
 {
 	//setup
-	this->objectRanges = new ObjectRange[orig.count];
 	this->count = orig.count;
 	this->cursor = orig.cursor;
+
+	//case
+	if (this->count == 0)
+		this->objectRanges = NULL;
+	else if (this->count <= 2)
+		this->objectRanges = this->biRangesCase;
+	else
+		this->objectRanges = new ObjectRange[orig.count];
 
 	//copy
 	for (int i = 0 ; i < this->cursor ; i++)
@@ -74,7 +93,7 @@ ObjectRanges::ObjectRanges(const ObjectRanges & orig)
 /****************************************************/
 ObjectRanges::~ObjectRanges(void)
 {
-	if (this->objectRanges != NULL)
+	if (this->objectRanges != NULL && this->objectRanges != this->biRangesCase)
 		delete [] this->objectRanges;
 }
 
