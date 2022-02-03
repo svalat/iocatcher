@@ -17,6 +17,9 @@ namespace IOC
 {
 
 /****************************************************/
+/**
+ * Build a vector of ranges.
+**/
 class IORanges
 {
 	public:
@@ -36,12 +39,24 @@ class IORanges
 		size_t getCount(void) const;
 		IORange & operator[](size_t index);
 	private:
+		void move(IORanges & orig);
+		void copy(const IORanges & orig);
+		void freemem(void);
+	private:
+		/** Pointer to the allocated ranges array. **/
 		IORange * ranges;
+		/** Provide a local storage if we use a uniq range to avoid a malloc(). **/
+		IORange uniqPreAllocated;
+		/** Number of elements in the rane array. **/
 		int count;
+		/** Position of the cursor for the push operations. **/
 		int cursor;
 };
 
 /****************************************************/
+/**
+ * Simple typedef to be more explicit on what we manipulate.
+**/
 typedef IORanges MemRanges;
 
 }
