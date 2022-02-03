@@ -12,6 +12,7 @@ set(IOC_SERVER_INTERNAL_CODE
 	$<TARGET_OBJECTS:ioc-server-core>
 	$<TARGET_OBJECTS:ioc-server-hooks>
 	$<TARGET_OBJECTS:ioc-server-backends>
+	$<TARGET_OBJECTS:ioc-server-worker>
 #	$<TARGET_OBJECTS:ioc-network>
 	#we should keep an eye on portability of this
 #	$<TARGET_OBJECTS:ioc-portability>
@@ -27,6 +28,7 @@ set(IOC_SERVER_INTERNAL_CODE_NOMERO
 	$<TARGET_OBJECTS:ioc-server-core>
 	$<TARGET_OBJECTS:ioc-server-hooks>
 	$<TARGET_OBJECTS:ioc-server-backends-no-mero>
+	$<TARGET_OBJECTS:ioc-server-worker>
 #	$<TARGET_OBJECTS:ioc-network>
 	#we should keep an eye on portability of this
 #	$<TARGET_OBJECTS:ioc-portability>
@@ -86,3 +88,4 @@ install(TARGETS iocatcher-server-no-mero DESTINATION ${CMAKE_INSTALL_BINDIR})
 add_subdirectory(core)
 add_subdirectory(hooks)
 add_subdirectory(backends)
+add_subdirectory(worker)
