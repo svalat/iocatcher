@@ -5,7 +5,9 @@
 ######################################################
 
 ######################################################
-set(SERVER_WORKER_SRC Worker.cpp)
+set(SERVER_WORKER_SRC Worker.cpp
+                      IORanges.cpp
+                      ObjectRanges.cpp)
 
 ######################################################
 add_library(ioc-server-worker OBJECT ${SERVER_WORKER_SRC})

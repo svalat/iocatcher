@@ -632,3 +632,13 @@ bool Object::checkBuffer(size_t offset, size_t size, char value)
 	//ok
 	return true;
 }
+
+
+/****************************************************/
+/**
+ * Compoare two object IDs.
+**/
+bool IOC::operator==(const ObjectId & objId1, const ObjectId & objId2)
+{
+	return objId1.low == objId2.low && objId1.high == objId2.high;
+}

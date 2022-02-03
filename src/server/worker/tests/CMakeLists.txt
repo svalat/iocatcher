@@ -11,7 +11,9 @@ include_directories(../)
 
 ######################################################
 set(TEST_NAMES TestSharedQueue
-               TestWorker)
+               TestWorker
+               TestIORanges
+               TestObjectRanges)
 
 ######################################################
 FOREACH(test_name ${TEST_NAMES})
