@@ -15,7 +15,7 @@
 //intenral
 #include "MemoryBackend.hpp"
 #include <base/network/LibfabricDomain.hpp>
-#include "../worker/IORanges.hpp"
+#include "../worker/IORange.hpp"
 
 /****************************************************/
 namespace IOC

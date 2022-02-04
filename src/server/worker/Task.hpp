@@ -33,19 +33,14 @@ enum TaskStage
 class Task
 {
 	public:
-		Task(void) {this->immediate = false; this->nextStage = STAGE_PREPARE;};
-		virtual ~Task(void) {assert(this->nextStage == STAGE_FINISHED || this->nextStage == STAGE_PREPARE);};
-		/** Run next stage. **/
+		inline Task(void);
+		virtual inline ~Task(void);
 		inline bool runNextStage(void);
-		/** Run next stage. **/
 		inline bool runNextStage(TaskStage expectedStage);
-		/** Perform both actions in one go. **/
 		inline void performAll(void);
-		/** Tell to the worker manager to run the task immediatly. **/
-		bool isImmediate(void) const {return this->immediate;};
-		/** Mark as immediate. **/
-		void markAsImmediate(void) {this->immediate = true;};
-		bool getStage(void) const {return this->nextStage;};
+		inline bool isImmediate(void) const;
+		inline void markAsImmediate(void);
+		inline bool getStage(void) const;
 	protected:
 		/** Prepage stage to compute the buffer addresses for the run stage. */
 		virtual void runPrepare(void) = 0;
@@ -64,6 +59,24 @@ class Task
 };
 
 /****************************************************/
+/** Default constructor. **/
+Task::Task(void)
+{
+	this->immediate = false;
+	this->nextStage = STAGE_PREPARE;
+}
+
+/****************************************************/
+/**
+ * Destructor, only checks that we ran everything.
+**/
+Task::~Task(void)
+{
+	assert(this->nextStage == STAGE_FINISHED || this->nextStage == STAGE_PREPARE);
+};
+
+/****************************************************/
+/** Run next stage. **/
 bool Task::runNextStage(void)
 {
 	//var
@@ -94,6 +107,7 @@ bool Task::runNextStage(void)
 }
 
 /****************************************************/
+/** Run next stage and check we are at the expected one. **/
 bool Task::runNextStage(TaskStage expectedStage)
 {
 	//check
@@ -107,10 +121,42 @@ bool Task::runNextStage(TaskStage expectedStage)
 }
 
 /****************************************************/
+/** Perform both actions in one go. **/
 void Task::performAll(void)
 {
 	while(this->runNextStage()) {};
 }
+
+/****************************************************/
+/** 
+ * Tell to the worker manager to run the task immediatly and not send it to a 
+ * worker thread.
+ * This is usefull to make the small task optimization not entering in
+ * thread queue communications and get a fast local execution.
+**/
+bool Task::isImmediate(void) const
+{
+	return this->immediate;
+};
+
+/****************************************************/
+/** 
+ * Tell to the worker manager to run the task immediatly and not send it to a 
+ * worker thread.
+ * This is usefull to make the small task optimization not entering in
+ * thread queue communications and get a fast local execution.
+**/
+void Task::markAsImmediate(void)
+{
+	this->immediate = true;
+};
+
+/****************************************************/
+/** Return the current stage of the task. **/
+bool Task::getStage(void) const
+{
+	return this->nextStage;
+};
 
 }
 

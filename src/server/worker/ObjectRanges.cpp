@@ -12,11 +12,6 @@
 using namespace IOC;
 
 /****************************************************/
-ObjectRange::ObjectRange(void)
-{
-}
-
-/****************************************************/
 /**
  * @todo Make an optimization when count = 1 to have a local storage to avoid
  * the allocation.
@@ -37,6 +32,10 @@ ObjectRanges::ObjectRanges(size_t count)
 }
 
 /****************************************************/
+/**
+ * Construct a vector with a uniq range.
+ * @param uniqRange Define the uniq range.
+**/
 ObjectRanges::ObjectRanges(const ObjectRange & uniqRange)
 {
 	//setup
@@ -47,6 +46,11 @@ ObjectRanges::ObjectRanges(const ObjectRange & uniqRange)
 }
 
 /****************************************************/
+/**
+ * Move constructor which transport the buffer from the original to the new one
+ * and let the original empty.
+ * @param orig Define the original range vector.
+**/
 ObjectRanges::ObjectRanges(ObjectRanges && orig)
 {
 	//move
@@ -71,6 +75,10 @@ ObjectRanges::ObjectRanges(ObjectRanges && orig)
 }
 
 /****************************************************/
+/**
+ * Copy constructor to copy a range.
+ * @param orig The origianl range to copy.
+**/
 ObjectRanges::ObjectRanges(const ObjectRanges & orig)
 {
 	//setup
@@ -91,6 +99,9 @@ ObjectRanges::ObjectRanges(const ObjectRanges & orig)
 }
 
 /****************************************************/
+/**
+ * Destructor to free the allocated array if needed.
+**/
 ObjectRanges::~ObjectRanges(void)
 {
 	if (this->objectRanges != NULL && this->objectRanges != this->biRangesCase)
@@ -98,12 +109,21 @@ ObjectRanges::~ObjectRanges(void)
 }
 
 /****************************************************/
+/**
+ * Check the the cursor is at its final position.
+**/
 bool ObjectRanges::ready(void) const
 {
 	return this->objectRanges != NULL && this->cursor == this->count && this->count > 0;
 }
 
 /****************************************************/
+/**
+ * Push a new range.
+ * @param objectId Define the object to protect.
+ * @param offset Define the offset of the range to protect.
+ * @param size Define the size of the range to protect.
+**/
 ObjectRanges & ObjectRanges::push(const ObjectId & objectId, size_t offset, size_t size)
 {
 	//check
@@ -124,6 +144,10 @@ ObjectRanges & ObjectRanges::push(const ObjectId & objectId, size_t offset, size
 }
 
 /****************************************************/
+/**
+ * Push a an object range in the list.
+ * @param objectRange to pre-build object range to copy and append in the list.
+**/
 ObjectRanges & ObjectRanges::push(const ObjectRange & objectRange)
 {
 	//check
@@ -141,7 +165,8 @@ ObjectRanges & ObjectRanges::push(const ObjectRange & objectRange)
 
 /****************************************************/
 /** 
- * @todo make an optimisation by sorting them
+ * Check for collision.
+ * @todo make an optimisation by sorting them not too loop on all every time.
 **/
 bool ObjectRanges::collide(const ObjectRanges & ranges) const
 {
