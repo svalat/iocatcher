@@ -194,6 +194,7 @@ digraph IOCATCHER
 
 	subgraph cluster_tasks {
 		label = "Worker tasks"
+		bgcolor = "green"
 
 		IOTaskHub [
 			label = "IOTaskHub"
@@ -242,6 +243,7 @@ digraph IOCATCHER
 
 	subgraph cluster_worker {
 		label = "Worker implementation"
+		bgcolor = "green"
 
 		IORange [
 			label = "{IORange|\l|\l}"
